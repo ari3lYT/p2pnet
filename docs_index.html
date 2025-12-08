@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Документация P2PNet</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#3B82F6',
+                        secondary: '#8B5CF6',
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+
+<body class="bg-gray-50">
+    <!-- Navigation -->
+    <nav class="bg-white shadow-md sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <a href="../"
+                        class="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                        <i class="fas fa-network-wired mr-2"></i>P2PNet
+                    </a>
+                </div>
+                <div class="flex items-center space-x-8">
+                    <a href="../" class="text-gray-700 hover:text-blue-600 transition duration-300">
+                        <i class="fas fa-home mr-1"></i>На главную
+                    </a>
+                    <a href="#getting-started" class="text-gray-700 hover:text-blue-600 transition duration-300">Начало
+                        работы</a>
+                    <a href="#for-users" class="text-gray-700 hover:text-blue-600 transition duration-300">Для
+                        пользователей</a>
+                    <a href="#for-providers" class="text-gray-700 hover:text-blue-600 transition duration-300">Для
+                        провайдеров</a>
+                    <a href="#api" class="text-gray-700 hover:text-blue-600 transition duration-300">API</a>
+                    <a href="#architecture"
+                        class="text-gray-700 hover:text-blue-600 transition duration-300">Архитектура</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="bg-gradient-to-r from-blue-600 to-purple-600 text-white py-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <h1 class="text-4xl md:text-5xl font-bold mb-4">Документация P2PNet</h1>
+            <p class="text-xl opacity-90 max-w-3xl mx-auto">
+                Все, что вам нужно для запуска, использования и развития децентрализованной вычислительной сети
+            </p>
+        </div>
+    </section>
+
+    <!-- TOC Section -->
+    <section class="py-12 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h2 class="text-3xl font-bold mb-8 text-center">Содержание</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <a href="#getting-started"
+                    class="block p-6 bg-blue-50 rounded-lg hover:bg-blue-100 transition duration-300">
+                    <i class="fas fa-rocket text-blue-600 text-2xl mb-3"></i>
+                    <h3 class="text-xl font-semibold mb-2">Начало работы</h3>
+                    <p class="text-gray-600">Быстрый старт с P2PNet, системные требования, первая установка.</p>
+                </a>
+                <a href="#for-users"
+                    class="block p-6 bg-green-50 rounded-lg hover:bg-green-100 transition duration-300">
+                    <i class="fas fa-users text-green-600 text-2xl mb-3"></i>
+                    <h3 class="text-xl font-semibold mb-2">Для пользователей</h3>
+                    <p class="text-gray-600">Как публиковать задачи, отслеживать выполнение, управлять платежами.</p>
+                </a>
+                <a href="#for-providers"
+                    class="block p-6 bg-purple-50 rounded-lg hover:bg-purple-100 transition duration-300">
+                    <i class="fas fa-server text-purple-600 text-2xl mb-3"></i>
+                    <h3 class="text-xl font-semibold mb-2">Для провайдеров</h3>
+                    <p class="text-gray-600">Как стать поставщиком ресурсов, настраивать узел, зарабатывать.</p>
+                </a>
+                <a href="#api" class="block p-6 bg-yellow-50 rounded-lg hover:bg-yellow-100 transition duration-300">
+                    <i class="fas fa-code text-yellow-600 text-2xl mb-3"></i>
+                    <h3 class="text-xl font-semibold mb-2">API Справочник</h3>
+                    <p class="text-gray-600">Подробное описание всех API-эндпоинтов, примеры запросов.</p>
+                </a>
+                <a href="#architecture" class="block p-6 bg-red-50 rounded-lg hover:bg-red-100 transition duration-300">
+                    <i class="fas fa-sitemap text-red-600 text-2xl mb-3"></i>
+                    <h3 class="text-xl font-semibold mb-2">Архитектура сети</h3>
+                    <p class="text-gray-600">Принципы работы, протоколы, безопасность, масштабируемость.</p>
+                </a>
+                <a href="#troubleshooting"
+                    class="block p-6 bg-gray-100 rounded-lg hover:bg-gray-200 transition duration-300">
+                    <i class="fas fa-tools text-gray-600 text-2xl mb-3"></i>
+                    <h3 class="text-xl font-semibold mb-2">Поиск и устранение неисправностей</h3>
+                    <p class="text-gray-600">Частые проблемы и их решения, поддержка сообщества.</p>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Getting Started -->
+    <section id="getting-started" class="py-16 bg-gray-50">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h2 class="text-3xl font-bold mb-8">Начало работы</h2>
+            <div class="bg-white rounded-lg shadow-md p-8">
+                <h3 class="text-xl font-semibold mb-4">Системные требования</h3>
+                <ul class="list-disc pl-6 space-y-2 mb-6">
+                    <li><strong>Операционная система:</strong> Windows 10+, macOS 10.14+, или любая дистрибутива Linux
+                        (x86_64)</li>
+                    <li><strong>Python:</strong> Версия 3.9 или выше</li>
+                    <li><strong>RAM:</strong> Минимум 2 ГБ, рекомендуется 4 ГБ и выше</li>
+                    <li><strong>Интернет:</strong> Стабильное подключение к сети</li>
+                    <li><strong>Процессор:</strong> Любой современный многоядерный процессор</li>
+                </ul>
+                <h3 class="text-xl font-semibold mb-4">Установка</h3>
+                <div class="bg-gray-900 text-gray-100 p-4 rounded-lg mb-4">
+                    <p class="mb-2">1. Скачайте последнюю версию с <a href="https://github.com/ari3lYT/p2pnet/releases"
+                            class="text-blue-400 hover:underline">GitHub Releases</a>.</p>
+                    <p class="mb-2">2. Распакуйте архив в удобную для вас папку.</p>
+                    <p class="mb-2">3. Откройте терминал или командную строку в этой папке.</p>
+                    <p class="mb-2">4. Установите зависимости:</p>
+                    <code class="block bg-gray-800 p-2 rounded mt-2">pip install -r requirements.txt</code>
+                    <p class="mt-2">5. Для проверки работы выполните:</p>
+                    <code class="block bg-gray-800 p-2 rounded mt-2">python3 run.py --help</code>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- For Users -->
+    <section id="for-users" class="py-16 bg-white">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h2 class="text-3xl font-bold mb-8">Для пользователей</h2>
+            <div class="bg-blue-50 rounded-lg shadow-md p-8">
+                <h3 class="text-xl font-semibold mb-4">Публикация задачи</h3>
+                <p class="mb-4">Чтобы опубликовать задачу в сети, используйте Python-клиент или API. Задача должна
+                    содержать:</p>
+                <ul class="list-disc pl-6 space-y-2 mb-6">
+                    <li><strong>Тип задачи:</strong> `range_reduce`, `map`, `map_reduce`, `matrix_ops`, `ml_inference`,
+                        `ml_train_step`</li>
+                    <li><strong>Требования к ресурсам:</strong> CPU (в секундах или %), RAM (в ГБ), GPU (если требуется)
+                    </li>
+                    <li><strong>Максимальная цена:</strong> Лимит на стоимость выполнения задачи</li>
+                    <li><strong>Приоритет:</strong> `low`, `normal`, `high`, `critical`</li>
+                </ul>
+                <h3 class="text-xl font-semibold mb-4">Пример кода</h3>
+                <div class="bg-gray-900 text-gray-100 p-4 rounded-lg">
+                    <pre><code># Импорт необходимых модулей
+from main import ComputeNetwork
+from core.task import Task, TaskPriority
+
+# Инициализация сети
+network = ComputeNetwork(host='0.0.0.0', port=5555)
+await network.start()
+
+# Создание задачи
+task = Task.create_range_reduce(
+    owner_id="your_user_id",
+    start=1,
+    end=1000000,
+    operation='sum',
+    requirements={'cpu_percent': 75.0, 'ram_gb': 2.0},
+    config={'max_price': 0.5, 'priority': TaskPriority.HIGH.value}
+)
+
+# Отправка задачи в сеть
+task_id = await network.submit_task(task.to_dict())
+print(f"Задача создана с ID: {task_id}")
+
+# Ожидание и получение результата
+result = await network.get_task_result(task_id)
+print(f"Результат: {result}")
+
+await network.stop()</code></pre>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- For Providers -->
+    <section id="for-providers" class="py-16 bg-gray-50">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h2 class="text-3xl font-bold mb-8">Для провайдеров</h2>
+            <div class="bg-purple-50 rounded-lg shadow-md p-8">
+                <h3 class="text-xl font-semibold mb-4">Запуск узла-провайдера</h3>
+                <p class="mb-4">Чтобы стать поставщиком ресурсов и зарабатывать, вам нужно запустить узел-провайдер:</p>
+                <div class="bg-gray-900 text-gray-100 p-4 rounded-lg mb-6">
+                    <code class="block">python3 run.py --provider</code>
+                </div>
+                <h3 class="text-xl font-semibold mb-4">Конфигурация</h3>
+                <p>Вы можете настроить узел, отредактировав файл `config/provider_config.json`:</p>
+                <ul class="list-disc pl-6 space-y-2 mt-4">
+                    <li><strong>max_cpu_load:</strong> Максимальная загрузка CPU, при которой узел перестает принимать
+                        новые задачи (по умолчанию 90%)</li>
+                    <li><strong>max_ram_load:</strong> Максимальная загрузка RAM (по умолчанию 80%)</li>
+                    <li><strong>price_multiplier:</strong> Множитель для базовых цен (позволяет зарабатывать больше)
+                    </li>
+                    <li><strong>accepted_task_types:</strong> Список типов задач, которые узел готов выполнять</li>
+                </ul>
+                <div class="mt-6 p-4 bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700">
+                    <p><i class="fas fa-lightbulb mr-2"></i><strong>Совет:</strong> Чем мощнее ваш компьютер и чем выше
+                        `price_multiplier`, тем больше вы будете зарабатывать.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- API -->
+    <section id="api" class="py-16 bg-white">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h2 class="text-3xl font-bold mb-8">API Справочник</h2>
+            <div class="space-y-6">
+                <div class="border-l-4 border-blue-500 pl-4">
+                    <h3 class="text-xl font-semibold mb-2">POST /api/v1/task</h3>
+                    <p class="text-gray-600 mb-2">Создает новую задачу в сети.</p>
+                    <h4 class="font-medium mb-2">Тело запроса (JSON):</h4>
+                    <pre class="bg-gray-100 p-3 rounded text-sm"><code>{
+  "task_type": "range_reduce",
+  "owner_id": "user_123",
+  "payload": {
+    "start": 1,
+    "end": 1000,
+    "operation": "sum"
+  },
+  "requirements": {
+    "cpu_percent": 50.0,
+    "ram_gb": 1.0
+  },
+  "config": {
+    "max_price": 0.1,
+    "priority": "normal"
+  }
+}</code></pre>
+                    <h4 class="font-medium mb-2">Ответ:</h4>
+                    <pre class="bg-gray-100 p-3 rounded text-sm"><code>{
+  "status": "accepted",
+  "task_id": "abc123def456",
+  "estimated_cost": 0.05
+}</code></pre>
+                </div>
+                <div class="border-l-4 border-green-500 pl-4">
+                    <h3 class="text-xl font-semibold mb-2">GET /api/v1/task/{task_id}/status</h3>
+                    <p class="text-gray-600 mb-2">Получает статус выполнения задачи.</p>
+                    <h4 class="font-medium mb-2">Возможные статусы:</h4>
+                    <ul class="list-disc pl-6 text-sm">
+                        <li><code>pending</code> - В ожидании</li>
+                        <li><code>running</code> - Выполняется</li>
+                        <li><code>completed</code> - Завершена</li>
+                        <li><code>failed</code> - Ошибку</li>
+                    </ul>
+                </div>
+                <div class="border-l-4 border-purple-500 pl-4">
+                    <h3 class="text-xl font-semibold mb-2">GET /api/v1/task/{task_id}/result</h3>
+                    <p class="text-gray-600 mb-2">Получает результат выполнения задачи (доступно только после статуса
+                        `completed`).</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Architecture -->
+    <section id="architecture" class="py-16 bg-gray-50">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h2 class="text-3xl font-bold mb-8">Архитектура сети</h2>
+            <div class="bg-white rounded-lg shadow-md p-8">
+                <h3 class="text-xl font-semibold mb-4">Основные компоненты</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                    <div class="p-4 border rounded-lg">
+                        <h4 class="font-semibold text-blue-600 mb-2"><i class="fas fa-network-wired mr-2"></i>Узлы
+                            (Nodes)</h4>
+                        <p class="text-sm text-gray-600">Основные участники сети. Бывают двух типов: bootstrap-узлы
+                            (помогают новым узлам найти сеть) и обычные узлы (выполняют задачи).</p>
+                    </div>
+                    <div class="p-4 border rounded-lg">
+                        <h4 class="font-semibold text-green-600 mb-2"><i class="fas fa-tasks mr-2"></i>Планировщик
+                            (Scheduler)</h4>
+                        <p class="text-sm text-gray-600">Компонент, который находит оптимальные узлы для выполнения
+                            задач на основе их загрузки, репутации и запрошенной цены.</p>
+                    </div>
+                    <div class="p-4 border rounded-lg">
+                        <h4 class="font-semibold text-purple-600 mb-2"><i class="fas fa-coins mr-2"></i>Кредитная
+                            система (Credits)</h4>
+                        <p class="text-sm text-gray-600">Управляет внутренними "кредитами" для учета выполненной работы
+                            и обеспечения честного обмена между участниками.</p>
+                    </div>
+                    <div class="p-4 border rounded-lg">
+                        <h4 class="font-semibold text-yellow-600 mb-2"><i class="fas fa-chart-line mr-2"></i>Движок
+                            ценообразования</h4>
+                        <p class="text-sm text-gray-600">Динамически рассчитывает стоимость вычислений на основе спроса,
+                            предложения и загруженности сети.</p>
+                    </div>
+                </div>
+                <h3 class="text-xl font-semibold mb-4">Протоколы</h3>
+                <ul class="list-disc pl-6 space-y-2">
+                    <li><strong>Discovery Protocol:</strong> Позволяет узлам находить друг друга в сети без центрального
+                        сервера.</li>
+                    <li><strong>Task Distribution Protocol:</strong> Обеспечивает надежную доставку задач и результатов
+                        между узлами.</li>
+                    <li><strong>Consensus Protocol:</strong> Гарантирует, что все узлы согласованы о состоянии сети и
+                        задачах.</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white py-8 mt-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <p>&copy; 2025 P2PNet. Документация проекта с открытым исходным кодом.</p>
+            <div class="mt-4 space-x-4">
+                <a href="https://github.com/ari3lYT/p2pnet" class="text-gray-400 hover:text-white"><i
+                        class="fab fa-github"></i></a>
+                <a href="#" class="text-gray-400 hover:text-white"><i class="fab fa-discord"></i></a>
+                <a href="#" class="text-gray-400 hover:text-white"><i class="fab fa-telegram"></i></a>
+            </div>
+        </div>
+    </footer>
+</body>
+
+</html>
