@@ -1,0 +1,133 @@
+{
+    "version": 1,
+    "sandbox": {
+        "type": "process_isolation",
+        "resource_limits": {
+            "cpu_time_seconds": 30,
+            "memory_bytes": 104857600,
+            "file_size_bytes": 52428800,
+            "process_count": 10,
+            "network_access": false,
+            "disk_access": false,
+            "temp_dir_size": 209715200
+        }
+    },
+    "pricing": {
+        "base_cpu_price": 0.01,
+        "base_gpu_price": 0.05,
+        "base_ram_price": 0.02,
+        "base_disk_price": 0.005,
+        "urgency_multiplier": {
+            "low": 0.8,
+            "normal": 1.0,
+            "high": 1.5,
+            "critical": 2.0
+        },
+        "reputation_multiplier": {
+            "terrible": 1.5,
+            "poor": 1.2,
+            "average": 1.0,
+            "good": 0.9,
+            "excellent": 0.8
+        },
+        "scarcity_multiplier": 1.2,
+        "high_demand_threshold": 80,
+        "critical_demand_threshold": 95,
+        "market_adjustment_rate": 0.1,
+        "price_smoothing": 0.3
+    },
+    "reputation": {
+        "decay_rate": 0.01,
+        "recent_timeframe": 2592000,
+        "weights": {
+            "success_rate": 0.3,
+            "task_quality": 0.25,
+            "consistency": 0.2,
+            "longevity": 0.15,
+            "cooperation": 0.1
+        },
+        "thresholds": {
+            "excellent": 0.9,
+            "good": 0.7,
+            "average": 0.5,
+            "poor": 0.3,
+            "terrible": 0.1
+        }
+    },
+    "network": {
+        "discovery_port": 5556,
+        "broadcast_interval": 10,
+        "peer_timeout": 30,
+        "max_peers": 100,
+        "bootstrap_hosts": [
+            "127.0.0.1:5555",
+            "192.168.1.1:5555",
+            "192.168.0.1:5555"
+        ],
+        "global_bootstrap": [
+            "d2omg.ru:6666",
+            "p2p.network:5555",
+            "node.p2p.chat:5555"
+        ]
+    },
+    "task_types": {
+        "range_reduce": {
+            "allowed": true,
+            "default_timeout": 30,
+            "max_data_size": 1000000
+        },
+        "map": {
+            "allowed": true,
+            "default_timeout": 30,
+            "max_data_size": 1000000
+        },
+        "map_reduce": {
+            "allowed": true,
+            "default_timeout": 60,
+            "max_data_size": 5000000
+        },
+        "matrix_ops": {
+            "allowed": true,
+            "default_timeout": 60,
+            "max_data_size": 10000000
+        },
+        "ml_inference": {
+            "allowed": true,
+            "default_timeout": 120,
+            "max_data_size": 10000000
+        },
+        "ml_train_step": {
+            "allowed": true,
+            "default_timeout": 300,
+            "max_data_size": 50000000
+        }
+    },
+    "security": {
+        "max_task_size": 1000000,
+        "max_execution_time": 300,
+        "allowed_imports": [],
+        "forbidden_patterns": [
+            "import os",
+            "import subprocess",
+            "import socket",
+            "import sys",
+            "eval(",
+            "exec(",
+            "compile(",
+            "open(",
+            "file(",
+            "input(",
+            "exit(",
+            "globals()",
+            "locals()"
+        ],
+        "signature_verification": true,
+        "encryption_required": false
+    },
+    "logging": {
+        "level": "INFO",
+        "file": "compute_network.log",
+        "max_size": "10MB",
+        "backup_count": 5
+    }
+}
