@@ -18,6 +18,7 @@ from core.task import (
     MLTrainStepTask,
 )
 from sandbox.execution import CodeBundle, SandboxLimits, SandboxResult
+import os
 
 
 async def execute_generic(task: Task, job, executor) -> Dict[str, Any]:
@@ -105,5 +106,9 @@ async def execute_generic(task: Task, job, executor) -> Dict[str, Any]:
             "output": result.stdout,
             "error": result.stderr if not result.success else None,
         }
+
+    if handler_type in ("wasm", "container"):
+        # Пока нет реализаций Wasm/Container — явно возвращаем ошибку
+        return {"success": False, "output": None, "error": f"{handler_type} code_ref not implemented yet"}
 
     return {"success": False, "output": None, "error": f"Unsupported code_ref: {code_ref}"}

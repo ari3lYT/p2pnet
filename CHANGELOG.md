@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.2.5 - 2025-03-17
+
+- Pipeline runner стал топологическим и параллельным: узлы без зависимостей исполняются одновременно, учитываются `depends_on`.
+- `code_ref.type=python_script` подкреплён sandbox-процессом; для wasm/container возвращается явная ошибка (интерфейс готов).
+- Метрики: добавлен `/metrics_prom` в формате Prometheus (рядом с JSON `/metrics`).
+
 ## 0.2.4 - 2025-03-17
 
 - Поддержан `code_ref.type=python_script` через `ProcessSandboxExecutor` (если сконфигурирован).

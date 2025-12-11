@@ -600,11 +600,29 @@ class ComputeNetwork:
         status = await self.get_network_status()
         return web.json_response(status)
 
+    async def _metrics_prometheus_handler(self, request):
+        """Простой экспорт в формате Prometheus text."""
+        status = await self.get_network_status()
+        lines = []
+        for key, val in status.items():
+            if isinstance(val, dict):
+                for subk, subv in val.items():
+                    metric_name = f"wf_{key}_{subk}".replace(".", "_")
+                    lines.append(f"# TYPE {metric_name} gauge")
+                    lines.append(f'{metric_name} {subv}')
+            else:
+                metric_name = f"wf_{key}".replace(".", "_")
+                lines.append(f"# TYPE {metric_name} gauge")
+                lines.append(f'{metric_name} {val}')
+        text = "\n".join(lines) + "\n"
+        return web.Response(text=text, content_type="text/plain")
+
     async def _start_metrics_server(self):
         """Запускает простой HTTP endpoint /metrics на порту port+100"""
         try:
             self._metrics_app = web.Application()
             self._metrics_app.router.add_get("/metrics", self._metrics_handler)
+            self._metrics_app.router.add_get("/metrics_prom", self._metrics_prometheus_handler)
             self._metrics_runner = web.AppRunner(self._metrics_app)
             await self._metrics_runner.setup()
             site = web.TCPSite(self._metrics_runner, self.host, self.port + 100)
