@@ -281,11 +281,12 @@ class WasmSandboxExecutor(SandboxExecutor):
 
 
 class ContainerSandboxExecutor(SandboxExecutor):
-    """Упрощённая контейнерная песочница: делегирует процессной, но маркирует тип."""
+    """Контейнерная песочница. Пытается запустить код в docker, при недоступности - fallback в процесс."""
 
     def __init__(self, default_limits: Optional[SandboxLimits] = None):
         super().__init__(SandboxType.CONTAINER, default_limits)
         self._delegate = ProcessSandboxExecutor(default_limits)
+        self._docker_image = os.environ.get("WF_CONTAINER_IMAGE", "python:3.11-slim")
 
     async def execute(
         self,
@@ -293,14 +294,74 @@ class ContainerSandboxExecutor(SandboxExecutor):
         code_bundle: CodeBundle,
         limits: Optional[SandboxLimits] = None,
     ) -> SandboxResult:
-        # В реальной реализации здесь должен быть запуск через контейнерный runtime (Docker/OCI).
-        # Пока используем процессную изоляцию как fallback, чтобы сценарий работал.
-        self.logger.warning("Container sandbox fallback to process isolation (runtime not implemented)")
-        return await self._delegate.execute(job, code_bundle, limits or self.default_limits)
+        limits = limits or self.default_limits
+        workdir = tempfile.mkdtemp(prefix="sandbox_container_")
+        start = time.time()
+        try:
+            entrypoint_path = self._delegate._write_bundle(workdir, code_bundle)
+            if not self._docker_available():
+                self.logger.warning("Docker not available, fallback to process isolation")
+                return await self._delegate.execute(job, code_bundle, limits)
+
+            cmd = [
+                "docker",
+                "run",
+                "--rm",
+                "--network", "none",
+                "--memory", str(limits.memory_bytes),
+                "--cpus", str(max(0.1, limits.cpu_time_seconds / max(limits.wall_time_seconds, 1))),
+                "-v", f"{workdir}:/app",
+                "-w", "/app",
+            ]
+            for k, v in limits.env.items():
+                cmd.extend(["-e", f"{k}={v}"])
+            if code_bundle.env:
+                for k, v in code_bundle.env.items():
+                    cmd.extend(["-e", f"{k}={v}"])
+            cmd.extend([self._docker_image, code_bundle.command[0] if code_bundle.command else sys.executable, "/app/" + os.path.basename(entrypoint_path)])
+            proc = await asyncio.create_subprocess_exec(
+                *cmd,
+                stdout=asyncio.subprocess.PIPE,
+                stderr=asyncio.subprocess.PIPE,
+            )
+            try:
+                stdout, stderr = await asyncio.wait_for(proc.communicate(), timeout=limits.wall_time_seconds)
+                timed_out = False
+            except asyncio.TimeoutError:
+                proc.kill()
+                stdout, stderr = await proc.communicate()
+                timed_out = True
+            runtime = time.time() - start
+            exit_code = proc.returncode if proc.returncode is not None else -1
+            success = exit_code == 0 and not timed_out
+            return SandboxResult(
+                success=success,
+                stdout=stdout.decode("utf-8", errors="replace"),
+                stderr=stderr.decode("utf-8", errors="replace"),
+                exit_code=exit_code,
+                runtime=runtime,
+                timed_out=timed_out,
+                killed=timed_out or exit_code != 0,
+                usage={},
+                reason="timeout" if timed_out else None,
+            )
+        except FileNotFoundError:
+            self.logger.warning("Docker CLI not found, fallback to process isolation")
+            return await self._delegate.execute(job, code_bundle, limits)
+        except Exception as exc:
+            self.logger.error("Container sandbox failed: %s", exc)
+            return await self._delegate.execute(job, code_bundle, limits)
+        finally:
+            shutil.rmtree(workdir, ignore_errors=True)
 
     async def run_self_test(self) -> bool:
-        self.logger.warning("Container sandbox self-test uses process isolation fallback")
+        if not self._docker_available():
+            self.logger.warning("Docker not available, container self-test skipped, using process fallback")
+            return await self._delegate.run_self_test()
         return await self._delegate.run_self_test()
+
+    def _docker_available(self) -> bool:
+        return shutil.which("docker") is not None
 
 
 class SandboxExecutorFactory:
