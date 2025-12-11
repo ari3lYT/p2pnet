@@ -17,6 +17,7 @@ from core.task import (
     MLInferenceTask,
     MLTrainStepTask,
 )
+from sandbox.execution import CodeBundle, SandboxLimits, SandboxResult
 
 
 async def execute_generic(task: Task, job, executor) -> Dict[str, Any]:
@@ -77,5 +78,32 @@ async def execute_generic(task: Task, job, executor) -> Dict[str, Any]:
             )
             output = executor._execute_ml_train_step(ml_task)
             return {"success": True, "output": output}
+
+    if handler_type == "python_script":
+        if not getattr(executor, "sandbox_executor", None):
+            return {"success": False, "output": None, "error": "Sandbox executor is not configured"}
+        source = code_ref.get("source")
+        location = code_ref.get("location")
+        if not source and location and os.path.exists(location):
+            with open(location, "r", encoding="utf-8") as fh:
+                source = fh.read()
+        bundle = CodeBundle(
+            entrypoint=code_ref.get("entry", "main.py"),
+            source=source or "",
+            files=code_ref.get("files", {}),
+            args=code_ref.get("args", []),
+            env=code_ref.get("env", {}),
+            stdin=None,
+        )
+        limits = SandboxLimits(
+            cpu_time_seconds=int(task.requirements.timeout_seconds or 30),
+            memory_bytes=int(task.requirements.ram_gb * 1024 * 1024 * 1024),
+        )
+        result: SandboxResult = await executor.sandbox_executor.execute(job=None, code_bundle=bundle, limits=limits)
+        return {
+            "success": result.success,
+            "output": result.stdout,
+            "error": result.stderr if not result.success else None,
+        }
 
     return {"success": False, "output": None, "error": f"Unsupported code_ref: {code_ref}"}

@@ -57,10 +57,13 @@ class ComputeNetwork:
         self.reputation_manager = ReputationManager()
         self.pricing_engine = DynamicPricingEngine(self.create_pricing_config())
         self.task_executor = TaskExecutor()
+        # Подключаем песочницу к executor для внешних code_ref
+        self.task_executor.sandbox_executor = None
         self.sandbox_executor = SandboxExecutorFactory.create(
             self.get_sandbox_type(),
             self.get_sandbox_limits(),
         )
+        self.task_executor.sandbox_executor = self.sandbox_executor
         
         # Задачи в сети
         self.pending_tasks: Dict[str, Dict] = {}
@@ -301,6 +304,10 @@ class ComputeNetwork:
                 self.active_tasks[task_id]['completed_at'] = time.time()
             else:
                 self.active_tasks[task_id]['error'] = result.get('invalid_results')
+            # Репутация: учитываем penalties из верификации
+            penalties = result.get('penalties', [])
+            for worker_id, reason in penalties:
+                await self.reputation_manager.penalize_malicious(worker_id, reason, severity=2.0)
         except Exception as exc:
             logger.error(f"Ошибка выполнения задачи {task_id}: {exc}")
             self.active_tasks[task_id]['status'] = TaskStatus.FAILED.value

@@ -564,6 +564,8 @@ class TaskExecutor:
             'tensorflow_inference': self._tensorflow_inference,
         }
         self.logger = logging.getLogger(__name__)
+        # Опционально назначаемый sandbox_executor для внешних code_ref
+        self.sandbox_executor = None
 
     async def execute(self, task: Task) -> Dict:
         """Полный pipeline исполнения задачи с поддержкой privacy/verification."""

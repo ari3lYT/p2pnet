@@ -13,17 +13,38 @@ if TYPE_CHECKING:  # pragma: no cover
 
 
 async def run_pipeline(task: "Task", executor) -> Dict[str, Any]:
-    """Последовательное исполнение pipeline/DAG (упрощённый режим)."""
-    nodes = (task.pipeline or {}).get('nodes', [])
-    previous_result = None
-    for node in nodes:
-        node_task_data = node.get('task', {})
-        if isinstance(node_task_data, Task):
-            node_task = node_task_data
-        else:
-            node_task = Task.from_dict(node_task_data)
-        if previous_result is not None and node_task.input_data is None:
-            node_task.input_data = previous_result
-        result = await executor.execute(node_task)
-        previous_result = result.get('result')
-    return executor._build_response(task, previous_result, 0.0)
+    """
+    Исполнение pipeline/DAG с учётом depends_on.
+    Пока последовательное, но с проверкой готовности зависимостей.
+    """
+    nodes = {node["id"]: node for node in (task.pipeline or {}).get("nodes", []) if "id" in node}
+    results: Dict[str, Any] = {}
+    completed = set()
+
+    # Простая топологическая обработка
+    while len(completed) < len(nodes):
+        progress = False
+        for node_id, node in nodes.items():
+            if node_id in completed:
+                continue
+            deps = set(node.get("depends_on", []))
+            if not deps.issubset(completed):
+                continue
+            node_task_data = node.get("task", {})
+            if isinstance(node_task_data, Task):
+                node_task = node_task_data
+            else:
+                node_task = Task.from_dict(node_task_data)
+            # Прокинуть результаты зависимостей
+            node_task.input_data = node_task.input_data or {
+                dep: results.get(dep) for dep in deps
+            }
+            result = await executor.execute(node_task)
+            results[node_id] = result.get("result")
+            completed.add(node_id)
+            progress = True
+        if not progress:
+            # Цикл или незакрытые зависимости
+            break
+    final_output = results[max(results.keys(), default=None, key=lambda x: x)] if results else None
+    return executor._build_response(task, final_output, 0.0)

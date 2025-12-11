@@ -12,6 +12,9 @@ from typing import Dict, List, Optional
 from core.job import Job
 from core.task import Task
 from core.job_state import JobStatus
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass
