@@ -657,8 +657,8 @@ spec:
 - 🐛 **Issues**: [GitHub Issues](https://github.com/ari3lYT/p2pnet/issues)
 - 💬 **Discussions**: [GitHub Discussions](https://github.com/ari3lYT/p2pnet/discussions)
 - 📧 **Email**: [support@p2pnet.org](mailto:support@p2pnet.org)
-- 💬 **Discord**: [P2P Network Community](https://discord.gg/compute-network)
-- 💬 **Slack**: [Compute Network Slack](https://compute-network.slack.com)
+- 💬 **Discord**: [P2P Network Community](https://discord.gg/p2pnet)
+- 💬 **Slack**: [P2P Network Slack](https://p2pnet.slack.com)
 
 ### Социальные сети
 
@@ -720,8 +720,8 @@ spec:
   <p>
     <a href="https://github.com/ari3lYT/p2pnet">GitHub</a> •
     <a href="https://docs.p2pnet.org">Документация</a> •
-    <a href="https://demo.compute-network.org">Демо</a> •
-    <a href="https://blog.compute-network.org">Блог</a>
+    <a href="https://demo.p2pnet.org">Демо</a> •
+    <a href="https://blog.p2pnet.org">Блог</a>
   </p>
 </div>
 vyt yflj yt 

@@ -442,8 +442,8 @@ spec:
 
 - **GitHub Repository**: [github.com/ari3lYT/p2pnet](https://github.com/ari3lYT/p2pnet)
 - **Документация**: [docs.p2pnet.org](https://docs.p2pnet.org)
-- **Форум**: [forum.compute-network.org](https://forum.compute-network.org)
-- **Чат**: [chat.compute-network.org](https://chat.compute-network.org)
+- **Форум**: [forum.p2pnet.org](https://forum.p2pnet.org)
+- **Чат**: [chat.p2pnet.org](https://chat.p2pnet.org)
 
 ### Вклад в развитие
 
@@ -500,9 +500,9 @@ docker run -d \
 
 ### Каналы поддержки
 
-- **Email**: support@compute-network.org
-- **Slack**: [compute-network.slack.com](https://compute-network.slack.com)
-- **Discord**: [discord.gg/compute-network](https://discord.gg/compute-network)
+- **Email**: support@p2pnet.org
+- **Slack**: [p2pnet.slack.com](https://p2pnet.slack.com)
+- **Discord**: [discord.gg/p2pnet](https://discord.gg/p2pnet)
 - **GitHub Issues**: [github.com/ari3lYT/p2pnet/issues](https://github.com/ari3lYT/p2pnet/issues)
 
 ### Отчет об ошибках
@@ -542,9 +542,9 @@ docker run -d \
 ### Ссылки
 
 - [GitHub Repository](https://github.com/ari3lYT/p2pnet)
-- [Официальный сайт](https://compute-network.org)
-- [Демо-версия](https://demo.compute-network.org)
-- [Блог](https://blog.compute-network.org)
+- [Официальный сайт](https://p2pnet.org)
+- [Демо-версия](https://demo.p2pnet.org)
+- [Блог](https://blog.p2pnet.org)
 
 ### Приложения
 
