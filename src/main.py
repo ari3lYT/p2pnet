@@ -17,8 +17,14 @@ from pathlib import Path
 # Импортируем наши модули
 from core.node import ComputeNode
 from core.task import Task, TaskExecutor, TaskType
+from core.job import TaskStatus
 from core.credits import CreditManager
-from sandbox.execution import SandboxExecutor, SandboxType
+from sandbox.execution import (
+    SandboxExecutor,
+    SandboxExecutorFactory,
+    SandboxLimits,
+    SandboxType,
+)
 from reputation.system import ReputationManager
 from pricing.dynamic import DynamicPricingEngine, PricingConfig, ResourceMetrics
 
@@ -50,7 +56,10 @@ class ComputeNetwork:
         self.reputation_manager = ReputationManager()
         self.pricing_engine = DynamicPricingEngine(self.create_pricing_config())
         self.task_executor = TaskExecutor()
-        self.sandbox_executor = SandboxExecutor(self.get_sandbox_type())
+        self.sandbox_executor = SandboxExecutorFactory.create(
+            self.get_sandbox_type(),
+            self.get_sandbox_limits(),
+        )
         
         # Задачи в сети
         self.pending_tasks: Dict[str, Dict] = {}
@@ -119,12 +128,38 @@ class ComputeNetwork:
             'container': SandboxType.CONTAINER,
             'process_isolation': SandboxType.PROCESS_ISOLATION
         }.get(sandbox_type, SandboxType.PROCESS_ISOLATION)
+
+    def get_sandbox_limits(self) -> SandboxLimits:
+        """Создает объект лимитов для песочницы"""
+        sandbox_config = self.config.get('sandbox', {})
+        limits = sandbox_config.get('resource_limits', {})
+        return SandboxLimits(
+            cpu_time_seconds=limits.get('cpu_time_seconds', 30),
+            memory_bytes=limits.get('memory_bytes', 100 * 1024 * 1024),
+            wall_time_seconds=limits.get('wall_time_seconds', sandbox_config.get('wall_time_seconds', 30)),
+            file_size_bytes=limits.get('file_size_bytes', 50 * 1024 * 1024),
+            open_files=limits.get('open_files', 256),
+            working_dir_quota_bytes=limits.get('temp_dir_size', 200 * 1024 * 1024),
+            env=limits.get('env', {}),
+        )
+
+    async def _run_sandbox_self_test(self):
+        """Проверяет работоспособность sandbox на старте"""
+        try:
+            success = await self.sandbox_executor.run_self_test()
+            if not success:
+                logger.warning(
+                    "Sandbox self-test failed. Tasks will still run, but isolation may be degraded."
+                )
+        except Exception as exc:
+            logger.warning("Sandbox self-test raised an exception: %s", exc)
     
     async def start(self):
         """Запускает сеть"""
         self.running = True
         
         try:
+            await self._run_sandbox_self_test()
             # Запускаем сервер узла
             await self.node.start_server()
             
@@ -156,10 +191,7 @@ class ComputeNetwork:
         
         # Очищаем sandbox
         try:
-            if hasattr(self.sandbox_executor, 'cleanup'):
-                self.sandbox_executor.cleanup()
-            elif hasattr(self.sandbox_executor, 'cleanup_resources'):
-                self.sandbox_executor.cleanup_resources()
+            await self.sandbox_executor.close()
         except Exception as e:
             logger.warning(f"Ошибка очистки sandbox: {e}")
         
@@ -223,12 +255,13 @@ class ComputeNetwork:
                     )
                     
                     # Назначаем задачу
+                    task.status = TaskStatus.SCHEDULED
                     self.active_tasks[task_id] = {
                         'task': task,
                         'worker_id': optimal_node['node_id'],
                         'assigned_at': time.time(),
                         'pricing': pricing,
-                        'status': 'running'
+                        'status': TaskStatus.SCHEDULED.value
                     }
                     
                     # Удаляем из pending
@@ -236,16 +269,30 @@ class ComputeNetwork:
                     
                     logger.info(f"📝 Задача {task_id} назначена узлу {optimal_node['node_id']}. Стоимость: {pricing['total_cost']}")
                     
-                    # Уведомляем узел
-                    await self.node.send_message(
-                        {'type': 'task_assignment', 'task_id': task_id, 'task_info': task_info},
-                        optimal_node['node_id']
-                    )
+                    asyncio.create_task(self._run_local_task(task_id, task))
                 else:
                     logger.warning(f"Недостаточно кредитов у владельца задачи {task_id}")
             
         except Exception as e:
             logger.error(f"Ошибка назначения задачи {task_id}: {e}")
+
+    async def _run_local_task(self, task_id: str, task: Task):
+        """Запускает выполнение задачи локально с обновлением состояния"""
+        try:
+            self.active_tasks[task_id]['status'] = TaskStatus.RUNNING.value
+            task.status = TaskStatus.RUNNING
+            result = await self.task_executor.execute(task)
+            self.active_tasks[task_id]['result'] = result
+            final_status = result.get('task_status', TaskStatus.COMPLETED.value)
+            self.active_tasks[task_id]['status'] = final_status
+            if final_status == TaskStatus.COMPLETED.value:
+                self.active_tasks[task_id]['completed_at'] = time.time()
+            else:
+                self.active_tasks[task_id]['error'] = result.get('invalid_results')
+        except Exception as exc:
+            logger.error(f"Ошибка выполнения задачи {task_id}: {exc}")
+            self.active_tasks[task_id]['status'] = TaskStatus.FAILED.value
+            self.active_tasks[task_id]['error'] = str(exc)
     
     async def get_available_nodes(self, task: Task) -> List[Dict]:
         """Получает список доступных узлов для задачи"""
@@ -460,14 +507,15 @@ class ComputeNetwork:
             if errors:
                 raise ValueError(f"Ошибка валидации задачи: {errors}")
             
-            # Генерируем ID задачи
-            task_id = task.task_id
-            
-            # Добавляем в pending задачи
-            self.pending_tasks[task_id] = {
-                'task': task.to_dict(),
-                'submitted_at': time.time()
-            }
+        # Генерируем ID задачи
+        task_id = task.task_id
+        
+        # Добавляем в pending задачи
+        self.pending_tasks[task_id] = {
+            'task': task.to_dict(),
+            'submitted_at': time.time(),
+            'status': TaskStatus.PENDING.value
+        }
             
             logger.info(f"📝 Задача {task_id} подана в сеть")
             return task_id
@@ -481,7 +529,7 @@ class ComputeNetwork:
         if task_id in self.pending_tasks:
             return {
                 'task_id': task_id,
-                'status': 'pending',
+                'status': self.pending_tasks[task_id]['status'],
                 'submitted_at': self.pending_tasks[task_id]['submitted_at']
             }
         
@@ -492,7 +540,10 @@ class ComputeNetwork:
                 'status': task_info['status'],
                 'worker_id': task_info['worker_id'],
                 'assigned_at': task_info['assigned_at'],
-                'pricing': task_info.get('pricing', {})
+                'pricing': task_info.get('pricing', {}),
+                'result': task_info.get('result'),
+                'completed_at': task_info.get('completed_at'),
+                'error': task_info.get('error')
             }
         
         else:
