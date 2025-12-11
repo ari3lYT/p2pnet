@@ -43,6 +43,7 @@ class TaskSchedulerState:
             )
             self.jobs_by_id[job.job_id] = record
             self.jobs_by_task[task.task_id].append(job.job_id)
+            logger.debug("Job %s registered for task %s", job.job_id, task.task_id)
 
     def mark_assigned(self, job_id: str, worker_id: str, now: float):
         record = self.jobs_by_id[job_id]
@@ -50,17 +51,20 @@ class TaskSchedulerState:
         record.assigned_to = worker_id
         record.attempts += 1
         record.last_attempt_ts = now
+        logger.debug("Job %s assigned to %s (attempt %d)", job_id, worker_id, record.attempts)
 
     def mark_ack(self, job_id: str, now: float):
         record = self.jobs_by_id[job_id]
         record.status = JobStatus.ACKED
         record.last_attempt_ts = now
+        logger.debug("Job %s acked by worker %s", job_id, record.assigned_to)
 
     def mark_result(self, job_id: str, success: bool, now: float):
         record = self.jobs_by_id[job_id]
         record.status = JobStatus.COMPLETED if success else JobStatus.FAILED
         record.last_attempt_ts = now
         record.next_retry_ts = now if success else now + 1.0
+        logger.debug("Job %s result status=%s", job_id, "success" if success else "failed")
 
     def status_counters(self) -> Dict[JobStatus, int]:
         counters: Dict[JobStatus, int] = {status: 0 for status in JobStatus}
