@@ -259,11 +259,12 @@ class ProcessSandboxExecutor(SandboxExecutor):
 
 
 class WasmSandboxExecutor(SandboxExecutor):
-    """Упрощённая WASM песочница (демо): компилирует код в файл и исполняет через процессный рантайм."""
+    """WASM песочница: пытается выполнить модуль через wasmtime CLI, при недоступности – fallback в процесс."""
 
     def __init__(self, default_limits: Optional[SandboxLimits] = None):
         super().__init__(SandboxType.WASM, default_limits)
         self._delegate = ProcessSandboxExecutor(default_limits)
+        self._wasm_runtime = os.environ.get("WF_WASM_RUNTIME", "wasmtime")
 
     async def execute(
         self,
@@ -271,12 +272,64 @@ class WasmSandboxExecutor(SandboxExecutor):
         code_bundle: CodeBundle,
         limits: Optional[SandboxLimits] = None,
     ) -> SandboxResult:
-        # Реальной WASM-изоляции нет; используем процессный рантайм как безопасный fallback.
-        self.logger.warning("WASM sandbox fallback to process isolation (wasm runtime not integrated yet)")
-        return await self._delegate.execute(job, code_bundle, limits or self.default_limits)
+        limits = limits or self.default_limits
+        workdir = tempfile.mkdtemp(prefix="sandbox_wasm_")
+        start = time.time()
+        try:
+            entrypoint_path = self._delegate._write_bundle(workdir, code_bundle)
+            wasm_file = code_bundle.files.get("module.wasm")
+            if not wasm_file or not shutil.which(self._wasm_runtime):
+                self.logger.warning("wasmtime not available or wasm module missing, fallback to process isolation")
+                return await self._delegate.execute(job, code_bundle, limits)
+
+            wasm_path = os.path.join(workdir, "module.wasm")
+            with open(wasm_path, "wb") as fh:
+                data = wasm_file if isinstance(wasm_file, (bytes, bytearray)) else wasm_file.encode("utf-8")
+                fh.write(data)
+
+            cmd = [
+                self._wasm_runtime,
+                wasm_path,
+            ]
+            proc = await asyncio.create_subprocess_exec(
+                *cmd,
+                stdout=asyncio.subprocess.PIPE,
+                stderr=asyncio.subprocess.PIPE,
+                cwd=workdir,
+            )
+            try:
+                stdout, stderr = await asyncio.wait_for(proc.communicate(), timeout=limits.wall_time_seconds)
+                timed_out = False
+            except asyncio.TimeoutError:
+                proc.kill()
+                stdout, stderr = await proc.communicate()
+                timed_out = True
+
+            runtime = time.time() - start
+            exit_code = proc.returncode if proc.returncode is not None else -1
+            success = exit_code == 0 and not timed_out
+            return SandboxResult(
+                success=success,
+                stdout=stdout.decode("utf-8", errors="replace"),
+                stderr=stderr.decode("utf-8", errors="replace"),
+                exit_code=exit_code,
+                runtime=runtime,
+                timed_out=timed_out,
+                killed=timed_out or exit_code != 0,
+                usage={},
+                reason="timeout" if timed_out else None,
+            )
+        except Exception as exc:
+            self.logger.error("WASM sandbox failed: %s", exc)
+            return await self._delegate.execute(job, code_bundle, limits)
+        finally:
+            shutil.rmtree(workdir, ignore_errors=True)
 
     async def run_self_test(self) -> bool:
-        self.logger.warning("WASM sandbox self-test uses process isolation fallback")
+        if not shutil.which(self._wasm_runtime):
+            self.logger.warning("wasmtime not available, self-test fallback to process isolation")
+            return await self._delegate.run_self_test()
+        # Без полноценного wasm-модуля используем fallback-тест
         return await self._delegate.run_self_test()
 
 
