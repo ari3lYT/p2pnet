@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.3.3 - 2025-03-17
+
+- WASM песочница: попытка выполнения через wasmtime с fallback в процесс; тесты обновлены.
+- Добавлены функциональные тесты (privacy mask, verification basic, generic python_script, pipeline flow) и базовые core-тесты проходят вместе с транспортом.
+
 ## 0.3.2 - 2025-03-17
 
 - WASM песочница стала рабочей: пытается исполнить wasm-модуль через wasmtime CLI; при недоступности wasm/runtime — fallback в процесс.
