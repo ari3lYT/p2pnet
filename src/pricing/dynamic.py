@@ -3,16 +3,13 @@
 Система динамического ценообразования для compute-кредитов
 """
 
-import json
-import time
-import asyncio
-import numpy as np
-from typing import Dict, List, Optional, Tuple, Any
-from dataclasses import dataclass, asdict
-from enum import Enum
-from collections import defaultdict, deque
 import statistics
-import math
+import time
+from collections import defaultdict, deque
+from dataclasses import asdict, dataclass
+from enum import Enum
+from typing import Dict, List, Optional
+
 
 class PricingFactor(Enum):
     """Факторы влияния на ценообразование"""

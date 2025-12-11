@@ -1,7 +1,6 @@
-import asyncio
 import pytest
 
-from core.task import Task, TaskExecutor, TaskType, TaskPriority
+from core.task import Task, TaskExecutor, TaskPriority
 
 
 @pytest.mark.asyncio

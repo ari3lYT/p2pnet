@@ -5,8 +5,7 @@
 
 from __future__ import annotations
 
-from typing import Any, Dict
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Dict
 
 if TYPE_CHECKING:  # pragma: no cover
     from core.task import Task
@@ -25,8 +24,9 @@ async def run_pipeline(task: "Task", executor) -> Dict[str, Any]:
     async def run_node(node_id: str, node_def: Dict[str, Any]):
         deps = set(node_def.get("depends_on", []))
         node_task_data = node_def.get("task", {})
-        from core.task import Task as PipelineTask, TaskType as PipelineTaskType
         from core.task import MapReduceTask, MapTask
+        from core.task import Task as PipelineTask
+        from core.task import TaskType as PipelineTaskType
         if isinstance(node_task_data, PipelineTask):
             node_task = node_task_data
         else:

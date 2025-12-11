@@ -15,7 +15,7 @@ import time
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any, Dict, List, Optional, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Dict, List, Optional
 
 try:
     import resource
@@ -276,7 +276,7 @@ class WasmSandboxExecutor(SandboxExecutor):
         workdir = tempfile.mkdtemp(prefix="sandbox_wasm_")
         start = time.time()
         try:
-            entrypoint_path = self._delegate._write_bundle(workdir, code_bundle)
+            _ = self._delegate._write_bundle(workdir, code_bundle)
             wasm_file = code_bundle.files.get("module.wasm")
             if not wasm_file or not shutil.which(self._wasm_runtime):
                 self.logger.warning("wasmtime not available or wasm module missing, fallback to process isolation")

@@ -3,13 +3,13 @@
 Система compute-кредитов для децентрализованной вычислительной сети
 """
 
-import json
-import time
 import threading
-from typing import Dict, List, Optional, Tuple
-from dataclasses import dataclass, asdict
-from enum import Enum
+import time
+from dataclasses import asdict, dataclass
 from decimal import Decimal, getcontext
+from enum import Enum
+from typing import Dict, List, Optional, Tuple
+
 
 class CreditEventType(Enum):
     """Типы событий кредитов"""
@@ -142,7 +142,7 @@ class CreditManager:
                 to_node=to_node,
                 amount=amount,
                 task_id=task_id,
-                description=f"Перевод кредитов за выполнение задачи"
+                description="Перевод кредитов за выполнение задачи"
             )
             self.events.append(event)
             

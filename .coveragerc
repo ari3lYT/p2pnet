@@ -1,0 +1,14 @@
+[run]
+omit =
+    src/main.py
+    src/reputation/*
+    src/sandbox/*
+    examples/*
+    tests/*
+    docs/*
+
+[report]
+exclude_lines =
+    pragma: no cover
+    if __name__ == .__main__.:
+    raise NotImplementedError

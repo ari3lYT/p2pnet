@@ -3,16 +3,14 @@
 Система репутации для децентрализованной вычислительной сети
 """
 
-import json
-import time
 import asyncio
-import numpy as np
-from typing import Dict, List, Optional, Tuple, Any
-from dataclasses import dataclass, asdict
-from enum import Enum
-from collections import defaultdict, deque
 import statistics
-import hashlib
+import time
+from collections import defaultdict, deque
+from dataclasses import asdict, dataclass
+from enum import Enum
+from typing import Dict, List, Optional
+
 
 class ReputationEventType(Enum):
     """Типы событий репутации"""

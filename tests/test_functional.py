@@ -1,4 +1,3 @@
-import asyncio
 import pytest
 
 from core.task import Task, TaskExecutor, TaskPriority

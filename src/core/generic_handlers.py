@@ -6,20 +6,19 @@
 
 from __future__ import annotations
 
+import logging
+import os
 from typing import Any, Dict
 
 from core.task import (
-    Task,
-    TaskType,
-    RangeReduceTask,
     MapTask,
     MatrixOpsTask,
     MLInferenceTask,
     MLTrainStepTask,
+    RangeReduceTask,
+    Task,
 )
 from sandbox.execution import CodeBundle, SandboxLimits, SandboxResult
-import os
-import logging
 
 logger = logging.getLogger(__name__)
 

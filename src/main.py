@@ -596,6 +596,8 @@ class ComputeNetwork:
             'ram_usage': self.node.capabilities.ram_usage,
             'job_statuses': job_counters,
             'avg_job_latency_sec': avg_job_latency,
+            'job_events': self.node.event_log[-50:],  # последние события
+            'scheduler_events': self.node.scheduler_state.to_event_list(),
         }
 
     async def _metrics_handler(self, request):

@@ -5,14 +5,14 @@
 
 from __future__ import annotations
 
+import logging
 import time
 from dataclasses import dataclass
 from typing import Dict, List, Optional
 
 from core.job import Job
-from core.task import Task
 from core.job_state import JobStatus
-import logging
+from core.task import Task
 
 logger = logging.getLogger(__name__)
 
@@ -69,8 +69,21 @@ class TaskSchedulerState:
         record.next_retry_ts = now if success else now + 1.0
         logger.debug("Job %s result status=%s", job_id, "success" if success else "failed")
 
+    def to_event_list(self) -> List[Dict]:
+        events = []
+        for rec in self.jobs_by_id.values():
+            events.append({
+                "job_id": rec.job.job_id,
+                "task_id": rec.job.task_id,
+                "status": rec.status.value,
+                "attempts": rec.attempts,
+                "assigned_to": rec.assigned_to,
+                "last_attempt_ts": rec.last_attempt_ts,
+            })
+        return events
+
     def status_counters(self) -> Dict[JobStatus, int]:
-        counters: Dict[JobStatus, int] = {status: 0 for status in JobStatus}
+        counters: Dict[JobStatus, int] = dict.fromkeys(JobStatus, 0)
         for record in self.jobs_by_id.values():
             counters[record.status] = counters.get(record.status, 0) + 1
         return counters

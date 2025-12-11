@@ -3,16 +3,17 @@
 Описание задач и их декларативного представления
 """
 
-import json
 import logging
+import os
 import time
 import uuid
-import os
 from collections import deque
-from typing import Dict, List, Any, Optional, Union, TYPE_CHECKING
-from dataclasses import dataclass, asdict, field
+from dataclasses import asdict, dataclass, field
 from enum import Enum
+from typing import Any, Dict, List, Optional
+
 from core.job import Job, JobResult, JobStatus, TaskStatus
+
 
 def _default_privacy_config() -> Dict[str, Any]:
     """Возвращает настройки приватности по умолчанию"""
@@ -905,6 +906,8 @@ class TaskExecutor:
             if operation == 'average':
                 total = sum(values)
                 count = sum(res.metadata.get('count', 0) for res in job_results)
+                if not count:
+                    count = len(values)
                 return total / count if count else 0
             return values[-1]
 
@@ -914,6 +917,26 @@ class TaskExecutor:
                 if result.success and isinstance(result.output, list):
                     aggregated.extend(result.output)
             return aggregated
+
+        if task.task_type == TaskType.MAP_REDUCE:
+            values = []
+            for res in job_results:
+                if res.success:
+                    if isinstance(res.output, list):
+                        values.extend(res.output)
+                    else:
+                        values.append(res.output)
+            reduce_fn = task.map_reduce.reduce_function if task.map_reduce else None
+            if reduce_fn == 'sum':
+                return sum(values)
+            if reduce_fn == 'product':
+                result = 1
+                for v in values:
+                    result *= v
+                return result
+            if reduce_fn == 'count':
+                return len(values)
+            return values[-1] if values else None
 
         # По умолчанию используем первый успешный результат
         for result in job_results:
