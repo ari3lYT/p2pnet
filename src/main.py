@@ -551,6 +551,16 @@ class ComputeNetwork:
     
     async def get_network_status(self) -> Dict:
         """Получает статус сети"""
+        job_counters = {}
+        if hasattr(self.node, "scheduler_state"):
+            counters = self.node.scheduler_state.status_counters()
+            job_counters = {status.value if hasattr(status, "value") else str(status): count for status, count in counters.items()}
+        avg_job_latency = 0.0
+        if getattr(self.node, "_job_latencies", None):
+            latencies = [x for x in self.node._job_latencies if x is not None]
+            if latencies:
+                avg_job_latency = sum(latencies) / len(latencies)
+
         return {
             'node_id': self.node.node_id,
             'host': self.node.host,
@@ -560,7 +570,11 @@ class ComputeNetwork:
             'active_tasks': len(self.active_tasks),
             'credits': float(self.credit_manager.get_balance(self.node.node_id)),
             'reputation_score': await self.reputation_manager.get_reputation_score(self.node.node_id),
-            'pricing_analytics': self.pricing_engine.get_pricing_analytics()
+            'pricing_analytics': self.pricing_engine.get_pricing_analytics(),
+            'cpu_usage': self.node.capabilities.cpu_usage,
+            'ram_usage': self.node.capabilities.ram_usage,
+            'job_statuses': job_counters,
+            'avg_job_latency_sec': avg_job_latency,
         }
 
 def signal_handler(signum, frame):

@@ -11,10 +11,24 @@ import threading
 import uuid
 import hashlib
 import base64
+import logging
 from typing import Dict, List, Optional, Any
 from dataclasses import dataclass, asdict
 from concurrent.futures import ThreadPoolExecutor
 import psutil
+
+from core.task import Task, TaskExecutor, TaskType
+from core.job import Job, TaskStatus
+from core.scheduler_state import TaskSchedulerState
+from core.protocol import (
+    MessageEnvelope,
+    MessageType,
+    JobAssignPayload,
+    JobAckPayload,
+    JobResultPayload,
+    JobFailPayload,
+)
+from core.transport import Transport
 
 try:
     import GPUtil
@@ -22,6 +36,8 @@ try:
 except ImportError:
     GPU_AVAILABLE = False
     print("⚠️ GPUtil not available, GPU features disabled")
+
+logger = logging.getLogger(__name__)
 
 @dataclass
 class NodeCapability:
@@ -102,11 +118,12 @@ class NodeCapability:
 class ComputeNode:
     """Основной класс узла для вычислительной сети"""
     
-    def __init__(self, host: str = '0.0.0.0', port: int = 5555):
+    def __init__(self, host: str = '0.0.0.0', port: int = 5555, transport: Optional[Transport] = None):
         self.host = host
         self.port = port
         self.node_id = self.generate_node_id()
         self.capabilities = NodeCapability.from_node(self.node_id)
+        self.transport = transport
         
         # Состояние сети
         self.peers: Dict[str, Dict] = {}  # peer_id -> capabilities
@@ -125,6 +142,13 @@ class ComputeNode:
         
         # Пул для выполнения задач
         self.task_executor = ThreadPoolExecutor(max_workers=self.capabilities.max_parallel_tasks)
+        self.job_executor = TaskExecutor()
+        self.scheduler_state = TaskSchedulerState()
+        self._job_result_futures: Dict[str, asyncio.Future] = {}
+        if self.transport:
+            self.transport.register_handler(self.node_id, self._on_transport_message)
+        self.simulate_fail_once: set = set()
+        self._job_latencies: List[float] = []
         
         # Регистрируем обработчики сообщений
         self.register_message_handlers()
@@ -146,6 +170,22 @@ class ComputeNode:
             'task_assignment': self.handle_task_assignment,  # Добавляем новый обработчик
             'task_cancellation': self.handle_task_cancellation # Добавляем новый обработчик
         }
+
+    async def _on_transport_message(self, envelope: MessageEnvelope):
+        """Обработчик сообщений транспорта InMemory"""
+        try:
+            if envelope.msg_type == MessageType.JOB_ASSIGN:
+                await self._handle_job_assign(envelope)
+            elif envelope.msg_type == MessageType.JOB_ACK:
+                await self._handle_job_ack(envelope)
+            elif envelope.msg_type == MessageType.JOB_RESULT:
+                await self._handle_job_result(envelope)
+            elif envelope.msg_type == MessageType.JOB_FAIL:
+                await self._handle_job_fail(envelope)
+            else:
+                logger.debug("Node %s received unsupported message %s", self.node_id, envelope.msg_type)
+        except Exception as exc:
+            logger.error("Transport handler error: %s", exc)
     
     async def start_server(self):
         """Запускает сервер для приема подключений"""
@@ -502,6 +542,162 @@ class ComputeNode:
             # await self.server.wait_closed() # Это вызовет ошибку, если сервер уже закрыт
         self.task_executor.shutdown(wait=True)
         print("🛑 Вычислительный узел остановлен")
+
+    async def assign_single_job_to_worker(self, worker_id: str, job: Job, task: Task, sandbox_type: str = "process_isolation"):
+        """Отправляет один job воркеру через транспорт (минимальный сценарий)"""
+        if not self.transport:
+            raise RuntimeError("Transport is not configured for node")
+        self.scheduler_state.register_jobs_for_task(task, [job])
+        max_attempts = job.max_attempts
+        timeout = task.requirements.timeout_seconds or 30
+
+        for attempt in range(1, max_attempts + 1):
+            payload = JobAssignPayload(
+                task_id=task.task_id,
+                job_id=job.job_id,
+                attempt=attempt,
+                code_ref={"language": "python", "entry": "builtin"},
+                sandbox_type=sandbox_type,
+                input_payload={
+                    "task_snapshot": task.to_dict(),
+                    "job_payload": job.input_payload,
+                    "task_type": job.task_type,
+                },
+                requirements={
+                    "cpu_percent": task.requirements.cpu_percent,
+                    "ram_gb": task.requirements.ram_gb,
+                    "timeout_seconds": timeout,
+                },
+                deadline_ts=time.time() + timeout,
+                privacy=task.privacy,
+            )
+            send_time = time.time()
+            self.scheduler_state.mark_assigned(job.job_id, worker_id, send_time)
+            result_payload = await self._send_and_wait(worker_id, payload, timeout)
+            if result_payload and result_payload.success:
+                self.scheduler_state.mark_result(job.job_id, True, time.time())
+                self.reputation["successful_tasks"] += 1
+                self.credits += 1.0
+                return result_payload
+            else:
+                self.scheduler_state.mark_result(job.job_id, False, time.time())
+                self.reputation["failed_tasks"] += 1
+                if attempt == max_attempts:
+                    raise RuntimeError(
+                        f"Job {job.job_id} failed after {attempt} attempts: "
+                        f"{getattr(result_payload, 'error', 'timeout')}"
+                    )
+
+    async def _send_and_wait(self, worker_id: str, payload: JobAssignPayload, timeout: float) -> Optional[JobResultPayload]:
+        envelope = MessageEnvelope.create(
+            MessageType.JOB_ASSIGN,
+            src_node=self.node_id,
+            dst_node=worker_id,
+            payload=payload.to_dict(),
+        )
+        future = asyncio.get_running_loop().create_future()
+        self._job_result_futures[payload.job_id] = future
+        await self.transport.send(worker_id, envelope)
+        try:
+            return await asyncio.wait_for(future, timeout=timeout)
+        except asyncio.TimeoutError:
+            logger.warning("Job %s timed out awaiting result", payload.job_id)
+            future = self._job_result_futures.get(payload.job_id)
+            if future and not future.done():
+                future.cancel()
+            if payload.job_id in self.scheduler_state.jobs_by_id:
+                self.scheduler_state.mark_result(payload.job_id, False, time.time())
+            return None
+
+    async def _handle_job_assign(self, envelope: MessageEnvelope):
+        payload = JobAssignPayload.from_dict(envelope.payload)
+        ack = JobAckPayload(task_id=payload.task_id, job_id=payload.job_id, status="accepted")
+        await self.transport.send(
+            envelope.src_node,
+            MessageEnvelope.create(MessageType.JOB_ACK, self.node_id, envelope.src_node, ack.to_dict()),
+        )
+        if payload.job_id in self.scheduler_state.jobs_by_id:
+            self.scheduler_state.mark_ack(payload.job_id, time.time())
+
+        if payload.job_id in self.simulate_fail_once:
+            self.simulate_fail_once.remove(payload.job_id)
+            fail_payload = JobResultPayload(
+                task_id=payload.task_id,
+                job_id=payload.job_id,
+                success=False,
+                output=None,
+                error="simulated failure",
+                runtime_ms=0.0,
+                worker_id=self.node_id,
+                attempt=payload.attempt,
+            )
+            await self.transport.send(
+                envelope.src_node,
+                MessageEnvelope.create(MessageType.JOB_RESULT, self.node_id, envelope.src_node, fail_payload.to_dict()),
+            )
+            return
+
+        job_payload = payload.input_payload.get("job_payload", payload.input_payload)
+        job = Job(
+            job_id=payload.job_id,
+            task_id=payload.task_id,
+            index=0,
+            task_type=payload.input_payload.get("task_type", TaskType.MAP.value),
+            input_payload=job_payload,
+            metadata={"privacy": payload.privacy},
+            max_attempts=1,
+        )
+        job.attempts = payload.attempt
+        job.canonical_id = payload.job_id
+        task_snapshot = payload.input_payload.get("task_snapshot")
+        if task_snapshot:
+            task = Task.from_dict(task_snapshot)
+        else:
+            task = Task.create_map(
+                owner_id=envelope.src_node,
+                data=job_payload.get("data", []),
+                function=job_payload.get("function", "square"),
+            )
+        start = time.time()
+        job_result = await self.job_executor.execute_single_job(task, job)
+        runtime_ms = (time.time() - start) * 1000
+        result_payload = JobResultPayload(
+            task_id=payload.task_id,
+            job_id=payload.job_id,
+            success=job_result.success,
+            output=job_result.output,
+            error=job_result.error,
+            runtime_ms=runtime_ms,
+            worker_id=self.node_id,
+            attempt=payload.attempt,
+        )
+        await self.transport.send(
+            envelope.src_node,
+            MessageEnvelope.create(MessageType.JOB_RESULT, self.node_id, envelope.src_node, result_payload.to_dict()),
+        )
+
+    async def _handle_job_ack(self, envelope: MessageEnvelope):
+        payload = JobAckPayload.from_dict(envelope.payload)
+        logger.info("Node %s received JOB_ACK %s status=%s", self.node_id, payload.job_id, payload.status)
+
+    async def _handle_job_result(self, envelope: MessageEnvelope):
+        payload = JobResultPayload.from_dict(envelope.payload)
+        logger.info("Node %s received JOB_RESULT %s success=%s", self.node_id, payload.job_id, payload.success)
+        future = self._job_result_futures.get(payload.job_id)
+        if future and not future.done():
+            future.set_result(payload)
+        # Обновляем статус и собираем метрики
+        now = time.time()
+        if payload.job_id in self.scheduler_state.jobs_by_id:
+            self.scheduler_state.mark_result(payload.job_id, payload.success, now)
+            self._job_latencies.append(payload.runtime_ms / 1000.0 if payload.runtime_ms else 0.0)
+
+    async def _handle_job_fail(self, envelope: MessageEnvelope):
+        payload = JobFailPayload.from_dict(envelope.payload)
+        logger.warning("Node %s received JOB_FAIL %s reason=%s", self.node_id, payload.job_id, payload.reason)
+        future = self._job_result_futures.get(payload.job_id)
+        if future and not future.done():
+            future.set_exception(RuntimeError(payload.reason))
 
 if __name__ == "__main__":
     # Пример использования
