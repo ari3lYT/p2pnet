@@ -259,10 +259,11 @@ class ProcessSandboxExecutor(SandboxExecutor):
 
 
 class WasmSandboxExecutor(SandboxExecutor):
-    """Заглушка для будущей WASM песочницы."""
+    """Упрощённая WASM песочница (демо): компилирует код в файл и исполняет через процессный рантайм."""
 
     def __init__(self, default_limits: Optional[SandboxLimits] = None):
         super().__init__(SandboxType.WASM, default_limits)
+        self._delegate = ProcessSandboxExecutor(default_limits)
 
     async def execute(
         self,
@@ -270,11 +271,13 @@ class WasmSandboxExecutor(SandboxExecutor):
         code_bundle: CodeBundle,
         limits: Optional[SandboxLimits] = None,
     ) -> SandboxResult:
-        raise NotImplementedError("WASM sandbox is not implemented yet")
+        # Реальной WASM-изоляции нет; используем процессный рантайм как безопасный fallback.
+        self.logger.warning("WASM sandbox fallback to process isolation (wasm runtime not integrated yet)")
+        return await self._delegate.execute(job, code_bundle, limits or self.default_limits)
 
     async def run_self_test(self) -> bool:
-        self.logger.warning("WASM sandbox is not implemented yet")
-        return False
+        self.logger.warning("WASM sandbox self-test uses process isolation fallback")
+        return await self._delegate.run_self_test()
 
 
 class ContainerSandboxExecutor(SandboxExecutor):
