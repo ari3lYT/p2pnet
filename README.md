@@ -656,9 +656,8 @@ spec:
 
 - 🐛 **Issues**: [GitHub Issues](https://github.com/ari3lYT/p2pnet/issues)
 - 💬 **Discussions**: [GitHub Discussions](https://github.com/ari3lYT/p2pnet/discussions)
-- 📧 **Email**: [support@p2pnet.org](mailto:support@p2pnet.org)
-- 💬 **Discord**: [P2P Network Community](https://discord.gg/p2pnet)
-- 💬 **Slack**: [P2P Network Slack](https://p2pnet.slack.com)
+- 📧 **Email**: [ari3l@d2omg.ru](mailto:ari3l@d2omg.ru)
+- 💬 **Telegram**: [@gweles](https://t.me/gweles)
 
 ### Социальные сети
 
@@ -719,9 +718,9 @@ spec:
   </p>
   <p>
     <a href="https://github.com/ari3lYT/p2pnet">GitHub</a> •
-    <a href="https://docs.p2pnet.org">Документация</a> •
-    <a href="https://demo.p2pnet.org">Демо</a> •
-    <a href="https://blog.p2pnet.org">Блог</a>
+    <a href="https://d2omg.ru/p2p/">Документация</a> •
+    <a href="https://p2p.d2omg.ru">Демо</a> •
+    <a href="https://p2p.d2omg.ru/blog">Блог</a>
   </p>
 </div>
 vyt yflj yt 

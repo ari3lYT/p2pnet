@@ -441,9 +441,9 @@ spec:
 ### Ресурсы
 
 - **GitHub Repository**: [github.com/ari3lYT/p2pnet](https://github.com/ari3lYT/p2pnet)
-- **Документация**: [docs.p2pnet.org](https://docs.p2pnet.org)
-- **Форум**: [forum.p2pnet.org](https://forum.p2pnet.org)
-- **Чат**: [chat.p2pnet.org](https://chat.p2pnet.org)
+- **Документация**: [d2omg.ru/p2p/](https://d2omg.ru/p2p/)
+- **Форум**: [p2p.d2omg.ru/forum](https://p2p.d2omg.ru/forum)
+- **Чат**: [p2p.d2omg.ru/chat](https://p2p.d2omg.ru/chat)
 
 ### Вклад в развитие
 
@@ -500,9 +500,8 @@ docker run -d \
 
 ### Каналы поддержки
 
-- **Email**: support@p2pnet.org
-- **Slack**: [p2pnet.slack.com](https://p2pnet.slack.com)
-- **Discord**: [discord.gg/p2pnet](https://discord.gg/p2pnet)
+- **Email**: [ari3l@d2omg.ru](mailto:ari3l@d2omg.ru)
+- **Telegram**: [@gweles](https://t.me/gweles)
 - **GitHub Issues**: [github.com/ari3lYT/p2pnet/issues](https://github.com/ari3lYT/p2pnet/issues)
 
 ### Отчет об ошибках
@@ -542,9 +541,9 @@ docker run -d \
 ### Ссылки
 
 - [GitHub Repository](https://github.com/ari3lYT/p2pnet)
-- [Официальный сайт](https://p2pnet.org)
-- [Демо-версия](https://demo.p2pnet.org)
-- [Блог](https://blog.p2pnet.org)
+- [Официальный сайт](https://p2p.d2omg.ru)
+- [Демо-версия](https://p2p.d2omg.ru)
+- [Блог](https://p2p.d2omg.ru/blog)
 
 ### Приложения
 
