@@ -25,6 +25,7 @@ from sandbox.execution import (
     SandboxLimits,
     SandboxType,
 )
+from aiohttp import web
 from reputation.system import ReputationManager
 from pricing.dynamic import DynamicPricingEngine, PricingConfig, ResourceMetrics
 
@@ -73,6 +74,8 @@ class ComputeNetwork:
         
         logger.info(f"🚀 Вычислительная сеть инициализирована на {host}:{port}")
         logger.info(f"🆔 Node ID: {self.node.node_id}")
+        self._metrics_app: Optional[web.Application] = None
+        self._metrics_runner: Optional[web.AppRunner] = None
     
     def load_config(self, config_file: str) -> Dict:
         """Загружает конфигурацию из файла"""
@@ -162,6 +165,8 @@ class ComputeNetwork:
             await self._run_sandbox_self_test()
             # Запускаем сервер узла
             await self.node.start_server()
+            # Запускаем метрики
+            asyncio.create_task(self._start_metrics_server())
             
             # Запускаем фоновые задачи
             asyncio.create_task(self.task_scheduler())
@@ -194,6 +199,13 @@ class ComputeNetwork:
             await self.sandbox_executor.close()
         except Exception as e:
             logger.warning(f"Ошибка очистки sandbox: {e}")
+
+        # Останавливаем сервер метрик
+        try:
+            if self._metrics_runner:
+                await self._metrics_runner.cleanup()
+        except Exception as e:
+            logger.warning(f"Ошибка остановки metrics сервера: {e}")
         
         logger.info("🛑 Сеть остановлена")
     
@@ -576,6 +588,23 @@ class ComputeNetwork:
             'job_statuses': job_counters,
             'avg_job_latency_sec': avg_job_latency,
         }
+
+    async def _metrics_handler(self, request):
+        status = await self.get_network_status()
+        return web.json_response(status)
+
+    async def _start_metrics_server(self):
+        """Запускает простой HTTP endpoint /metrics на порту port+100"""
+        try:
+            self._metrics_app = web.Application()
+            self._metrics_app.router.add_get("/metrics", self._metrics_handler)
+            self._metrics_runner = web.AppRunner(self._metrics_app)
+            await self._metrics_runner.setup()
+            site = web.TCPSite(self._metrics_runner, self.host, self.port + 100)
+            await site.start()
+            logger.info("📊 Metrics endpoint запущен на %s:%s/metrics", self.host, self.port + 100)
+        except Exception as exc:
+            logger.warning("Не удалось запустить metrics endpoint: %s", exc)
 
 def signal_handler(signum, frame):
     """Обработчик сигналов"""
