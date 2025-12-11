@@ -55,6 +55,8 @@ class ComputeNetwork:
         self.node = ComputeNode(host, port)
         self.credit_manager = CreditManager()
         self.reputation_manager = ReputationManager()
+        # Координатору нужна ссылка на ReputationManager для записи penalties
+        setattr(self.node, "reputation_manager", self.reputation_manager)
         self.pricing_engine = DynamicPricingEngine(self.create_pricing_config())
         self.task_executor = TaskExecutor()
         # Подключаем песочницу к executor для внешних code_ref

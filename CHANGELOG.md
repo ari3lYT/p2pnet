@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.2.7 - 2025-03-17
+
+- Распределённые penalties: при фейлах job координатор записывает событие в ReputationManager (если доступен).
+- Явное предупреждение для wasm/container code_ref; подключение ReputationManager к node.
+
 ## 0.2.6 - 2025-03-17
 
 - Документация/README обновлены: новые типы `generic/pipeline`, эндпоинты метрик.

@@ -19,6 +19,9 @@ from core.task import (
 )
 from sandbox.execution import CodeBundle, SandboxLimits, SandboxResult
 import os
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 async def execute_generic(task: Task, job, executor) -> Dict[str, Any]:
@@ -108,7 +111,7 @@ async def execute_generic(task: Task, job, executor) -> Dict[str, Any]:
         }
 
     if handler_type in ("wasm", "container"):
-        # Пока нет реализаций Wasm/Container — явно возвращаем ошибку
+        logger.warning("%s code_ref requested but not implemented; returning error", handler_type)
         return {"success": False, "output": None, "error": f"{handler_type} code_ref not implemented yet"}
 
     return {"success": False, "output": None, "error": f"Unsupported code_ref: {code_ref}"}

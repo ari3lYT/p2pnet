@@ -704,6 +704,22 @@ class ComputeNode:
         else:
             self.reputation["failed_tasks"] += 1
             self.reputation["penalties"] += 1
+            # Пишем событие в глобальный ReputationManager, если доступен
+            try:
+                from reputation.system import ReputationEvent, ReputationEventType
+                event = ReputationEvent(
+                    event_id=str(int(time.time() * 1000000)),
+                    event_type=ReputationEventType.MALICIOUS_BEHAVIOR,
+                    node_id=self.node_id,
+                    task_id=payload.task_id,
+                    description=f"Job {payload.job_id} failed or mismatched",
+                    severity=2.0,
+                )
+                # Предполагаем, что у координатора есть ссылка на репутационный менеджер
+                if hasattr(self, "reputation_manager"):
+                    await self.reputation_manager.add_event(event)
+            except Exception as exc:  # мягко логируем
+                logger.debug("Failed to record reputation penalty: %s", exc)
 
     async def _handle_job_fail(self, envelope: MessageEnvelope):
         payload = JobFailPayload.from_dict(envelope.payload)
