@@ -774,7 +774,7 @@ class TaskExecutor:
             worker_id = f"{worker_id}-replica-{job.metadata.get('replica_index', 0)}"
 
         # Универсальный generic путь по code_ref
-        if task.task_type == TaskType.GENERIC or task.code_ref:
+        if task.task_type == TaskType.GENERIC:
             from core.generic_handlers import execute_generic
             result = await execute_generic(task, job, self)
             return JobResult(
@@ -788,22 +788,39 @@ class TaskExecutor:
             )
 
         if job.task_type == TaskType.RANGE_REDUCE.value:
+            start_val = payload.get('start', task.range_reduce.start if task.range_reduce else 0)
+            end_val = payload.get('end', task.range_reduce.end if task.range_reduce else 0)
             range_task = RangeReduceTask(
-                start=payload['start'],
-                end=payload['end'],
-                operation=payload['operation'],
+                start=start_val,
+                end=end_val,
+                operation=payload.get('operation', 'sum'),
                 chunk_size=payload.get('step', task.range_reduce.chunk_size if task.range_reduce else 1)
             )
             result = self._execute_range_reduce(range_task)
-            metadata = {'count': max(0, payload['end'] - payload['start'])}
+            metadata = {'count': max(0, end_val - start_val)}
         elif job.task_type == TaskType.MAP.value:
+            data_payload = payload.get('data')
+            if not data_payload and task.map:
+                data_payload = task.map.data
             map_task = MapTask(
-                data=payload['data'],
-                function=payload['function'],
+                data=data_payload or [],
+                function=payload.get('function', 'increment'),
                 params=payload.get('params', {})
             )
             result = self._execute_map(map_task)
-            metadata = {'chunk_size': len(payload['data'])}
+            metadata = {'chunk_size': len(map_task.data)}
+        elif job.task_type == TaskType.MAP_REDUCE.value:
+            data_payload = payload.get('data')
+            if not data_payload and task.map_reduce:
+                data_payload = task.map_reduce.data
+            mr_task = MapReduceTask(
+                data=data_payload or [],
+                map_function=payload.get('map_function', 'x'),
+                reduce_function=payload.get('reduce_function', 'sum'),
+                params=payload.get('params', {})
+            )
+            result = self._execute_map_reduce(mr_task)
+            metadata = {'chunk_size': len(mr_task.data)}
         else:
             snapshot = payload['task_snapshot']
             cloned_task = Task.from_dict(snapshot)
@@ -846,7 +863,13 @@ class TaskExecutor:
                 return aggregated
             if parallel_mode == "map_reduce":
                 values = [res.output for res in job_results if res.success]
-                reduce_fn = (task.code_ref or {}).get('reduce_function')
+                # Если результаты — списки, разворачиваем
+                if values and all(isinstance(v, list) for v in values):
+                    flat = []
+                    for v in values:
+                        flat.extend(v)
+                    values = flat
+                reduce_fn = (task.code_ref or {}).get('reduce_function') or (task.map_reduce.reduce_function if task.map_reduce else None)
                 if reduce_fn in ('sum', 'average', 'min', 'max', 'product'):
                     if reduce_fn == 'sum':
                         return sum(values)
@@ -953,7 +976,7 @@ class TaskExecutor:
     
     def _execute_range_reduce(self, task: RangeReduceTask) -> Any:
         """Выполняет range_reduce задачу"""
-        numbers = range(task.start, task.end, task.chunk_size)
+        numbers = range(task.start, task.end)  # используем шаг 1 для корректной суммы/редукции
         
         if task.operation == 'sum':
             return sum(numbers)
@@ -976,6 +999,8 @@ class TaskExecutor:
         """Выполняет map задачу"""
         if task.function == 'square':
             return [x ** 2 for x in task.data]
+        if task.function == 'x':
+            return list(task.data)
         elif task.function == 'increment':
             increment = task.params.get('increment', 1) if task.params else 1
             return [x + increment for x in task.data]

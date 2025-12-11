@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.3.0 - 2025-03-17
+
+- Pipeline: исправлен статус выполнения, преобразование задач из dict, подстановка данных зависимостей; тесты покрывают map → map_reduce цепочку.
+- Исправлены edge-case'ы executor'а: map/map_reduce fallback данные, range_reduce шаг, map function 'x', generic reduce агрегатор.
+- Добавлены базовые core-тесты (`tests/test_executor_core.py`) для map/range_reduce/generic/pipeline.
+- Все тесты проходят (in-memory транспорт + новые core-тесты).
+
 ## 0.2.9 - 2025-03-17
 
 - WASM песочница больше не NotImplemented: использует процессную изоляцию как временный fallback (логируя отсутствие wasm-рантайма).
