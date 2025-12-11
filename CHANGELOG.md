@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.2.3 - 2025-03-17
+
+- Рефакторинг: вынесены generic-обработчики в `core/generic_handlers.py`, pipeline в `core/pipeline.py` (разгружает TaskExecutor).
+- Исправлен цикл импортов и ошибки await, тесты in-memory транспорта снова проходят.
+
 ## 0.2.2 - 2025-03-17
 
 - Стейты job'ов: координатор отмечает ACK и переход в RUNNING, таймауты фиксируются как failure/expired с штрафами.
