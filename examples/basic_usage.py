@@ -39,6 +39,10 @@ async def main():
             config={
                 'max_price': 0.1,
                 'priority': TaskPriority.NORMAL.value # Возвращаем .value для сериализации
+            },
+            privacy={
+                "mode": "shard",
+                "zk_verify": "basic"
             }
         )
         
@@ -70,6 +74,10 @@ async def main():
             config={
                 'max_price': 1.0,
                 'priority': TaskPriority.HIGH.value # Возвращаем .value для сериализации
+            },
+            privacy={
+                "mode": "mask",
+                "zk_verify": "strict"
             }
         )
         
@@ -130,6 +138,59 @@ async def main():
         top_nodes = await network.reputation_manager.get_top_nodes(5)
         for i, node in enumerate(top_nodes, 1):
             print(f"{i}. {node['node_id']}: {node['score']:.3f} ({node['level']})")
+
+        print("\n📝 Пример 4: generic python_script")
+        generic_task = Task.create_generic(
+            owner_id=network.node.node_id,
+            code_ref={
+                "type": "python_script",
+                "entry": "main.py",
+                "source": "import json\nprint(sum(json.load(open('input.json'))['nums']))",
+                "files": {"input.json": '{"nums":[1,2,3,4]}'},
+            },
+            input_data=None,
+            requirements={
+                "cpu_percent": 10.0,
+                "ram_gb": 0.1,
+                "timeout_seconds": 5,
+            },
+            config={"max_price": 0.05, "priority": TaskPriority.NORMAL.value},
+            parallel={"mode": "single"},
+        )
+        task_id = await network.submit_task(generic_task.to_dict())
+        print(f"✅ generic python_script задача создана: {task_id}")
+
+        print("\n📝 Пример 5: pipeline с зависимостями")
+        pipeline = Task.create_pipeline(
+            owner_id=network.node.node_id,
+            nodes=[
+                {
+                    "id": "step1",
+                    "task": Task.create_map(
+                        owner_id=network.node.node_id,
+                        data=[1, 2, 3],
+                        function="increment",
+                        config={"priority": TaskPriority.NORMAL.value},
+                        requirements={"cpu_percent": 5.0, "ram_gb": 0.1},
+                    ).to_dict(),
+                },
+                {
+                    "id": "step2",
+                    "depends_on": ["step1"],
+                    "task": Task.create_map_reduce(
+                        owner_id=network.node.node_id,
+                        data=[],  # будет подставлено из step1
+                        map_function="x",
+                        reduce_function="sum",
+                        config={"priority": TaskPriority.NORMAL.value},
+                        requirements={"cpu_percent": 5.0, "ram_gb": 0.1},
+                    ).to_dict(),
+                },
+            ],
+            config={"priority": TaskPriority.NORMAL.value},
+        )
+        task_id = await network.submit_task(pipeline.to_dict())
+        print(f"✅ Pipeline задача создана: {task_id}")
         
         print("\n⏳ Демонстрация завершена. Нажмите Ctrl+C для выхода...")
         
