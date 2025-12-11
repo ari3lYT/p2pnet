@@ -43,7 +43,7 @@
 
 ```bash
 # Клонируем репозиторий
-git clone https://github.com/p2pnet/p2pnet.git
+git clone https://github.com/ari3lYT/p2pnet.git
 cd p2pnet
 
 # Или для SSH

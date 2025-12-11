@@ -86,9 +86,9 @@
 - [🚀 Развертывание](deployment.md)
 - [💡 Примеры](examples.md)
 - [❓ FAQ](examples.md#faq)
-- [🐛 Отчет об ошибках](https://github.com/your-org/compute-network/issues)
-- [💡 Запросы функций](https://github.com/your-org/compute-network/issues/new?template=feature_request.md)
-- [💬 Обсуждения](https://github.com/your-org/compute-network/discussions)
+- [🐛 Отчет об ошибках](https://github.com/ari3lYT/p2pnet/issues)
+- [💡 Запросы функций](https://github.com/ari3lYT/p2pnet/issues/new?template=feature_request.md)
+- [💬 Обсуждения](https://github.com/ari3lYT/p2pnet/discussions)
 
 ---
 

@@ -213,8 +213,8 @@ network:
 
 ```bash
 # Клонирование репозитория
-git clone https://github.com/your-org/compute-network.git
-cd compute-network
+git clone https://github.com/ari3lYT/p2pnet.git
+cd p2pnet
 
 # Создание виртуального окружения
 python -m venv venv

@@ -1667,8 +1667,8 @@ if __name__ == "__main__":
 **Q: Как установить систему на Ubuntu?**
 ```bash
 # Клонирование репозитория
-git clone https://github.com/your-org/compute-network.git
-cd compute-network
+git clone https://github.com/ari3lYT/p2pnet.git
+cd p2pnet
 
 # Создание виртуального окружения
 python3 -m venv venv

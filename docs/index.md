@@ -58,8 +58,8 @@
 
 ```bash
 # Клонирование репозитория
-git clone https://github.com/your-org/compute-network.git
-cd compute-network
+git clone https://github.com/ari3lYT/p2pnet.git
+cd p2pnet
 
 # Создание виртуального окружения
 python3 -m venv venv
@@ -440,8 +440,8 @@ spec:
 
 ### Ресурсы
 
-- **GitHub Repository**: [github.com/your-org/compute-network](https://github.com/your-org/compute-network)
-- **Документация**: [docs.compute-network.org](https://docs.compute-network.org)
+- **GitHub Repository**: [github.com/ari3lYT/p2pnet](https://github.com/ari3lYT/p2pnet)
+- **Документация**: [docs.p2pnet.org](https://docs.p2pnet.org)
 - **Форум**: [forum.compute-network.org](https://forum.compute-network.org)
 - **Чат**: [chat.compute-network.org](https://chat.compute-network.org)
 
@@ -465,8 +465,8 @@ spec:
 
 ```bash
 # Клонирование репозитория
-git clone https://github.com/your-org/compute-network.git
-cd compute-network
+git clone https://github.com/ari3lYT/p2pnet.git
+cd p2pnet
 
 # Сборка образа
 docker build -t compute-network:latest .
@@ -503,7 +503,7 @@ docker run -d \
 - **Email**: support@compute-network.org
 - **Slack**: [compute-network.slack.com](https://compute-network.slack.com)
 - **Discord**: [discord.gg/compute-network](https://discord.gg/compute-network)
-- **GitHub Issues**: [github.com/your-org/compute-network/issues](https://github.com/your-org/compute-network/issues)
+- **GitHub Issues**: [github.com/ari3lYT/p2pnet/issues](https://github.com/ari3lYT/p2pnet/issues)
 
 ### Отчет об ошибках
 
@@ -541,16 +541,16 @@ docker run -d \
 
 ### Ссылки
 
-- [GitHub Repository](https://github.com/your-org/compute-network)
+- [GitHub Repository](https://github.com/ari3lYT/p2pnet)
 - [Официальный сайт](https://compute-network.org)
 - [Демо-версия](https://demo.compute-network.org)
 - [Блог](https://blog.compute-network.org)
 
 ### Приложения
 
-- **[Compute Network CLI](https://github.com/your-org/compute-network-cli)** - Командная строка
-- **[Compute Network Web UI](https://github.com/your-org/compute-network-web)** - Веб-интерфейс
-- **[Compute Network SDK](https://github.com/your-org/compute-network-sdk)** - SDK для разных языков
+- **[Compute Network CLI](https://github.com/ari3lYT/p2pnet-cli)** - Командная строка
+- **[Compute Network Web UI](https://github.com/ari3lYT/p2pnet-web)** - Веб-интерфейс
+- **[Compute Network SDK](https://github.com/ari3lYT/p2pnet-sdk)** - SDK для разных языков
 
 ---
 

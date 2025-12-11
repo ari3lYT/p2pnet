@@ -2,9 +2,9 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Python Version](https://img.shields.io/badge/python-3.11%2B-blue.svg)](https://www.python.org/downloads/)
-[![Code Coverage](https://img.shields.io/badge/coverage-95%25-green.svg)](https://github.com/your-org/compute-network)
-[![Build Status](https://img.shields.io/github/workflow/status/your-org/compute-network/CI?branch=main)](https://github.com/your-org/compute-network/actions)
-[![Documentation](https://img.shields.io/badge/docs-latest-brightgreen.svg)](https://your-org.github.io/compute-network)
+[![Code Coverage](https://img.shields.io/badge/coverage-95%25-green.svg)](https://github.com/ari3lYT/p2pnet)
+[![Build Status](https://img.shields.io/github/workflow/status/ari3lYT/p2pnet/CI?branch=main)](https://github.com/ari3lYT/p2pnet/actions)
+[![Documentation](https://img.shields.io/badge/docs-latest-brightgreen.svg)](https://ari3lYT.github.io/p2pnet)
 
 Проект создания горизонтальной P2P сети для распределенных вычислений с использованием compute-кредитов.
 
@@ -40,8 +40,8 @@
 
 ```bash
 # 1. Клонирование репозитория
-git clone https://github.com/your-org/compute-network.git
-cd compute-network
+git clone https://github.com/ari3lYT/p2pnet.git
+cd p2pnet
 
 # 2. Создание виртуального окружения
 python3 -m venv venv
@@ -654,9 +654,9 @@ spec:
 
 ### Каналы связи
 
-- 🐛 **Issues**: [GitHub Issues](https://github.com/your-org/compute-network/issues)
-- 💬 **Discussions**: [GitHub Discussions](https://github.com/your-org/compute-network/discussions)  
-- 📧 **Email**: [support@compute-network.org](mailto:support@compute-network.org)
+- 🐛 **Issues**: [GitHub Issues](https://github.com/ari3lYT/p2pnet/issues)
+- 💬 **Discussions**: [GitHub Discussions](https://github.com/ari3lYT/p2pnet/discussions)
+- 📧 **Email**: [support@p2pnet.org](mailto:support@p2pnet.org)
 - 💬 **Discord**: [P2P Network Community](https://discord.gg/compute-network)
 - 💬 **Slack**: [Compute Network Slack](https://compute-network.slack.com)
 
@@ -718,9 +718,10 @@ spec:
     Made with ❤️ by the Compute Network team
   </p>
   <p>
-    <a href="https://github.com/your-org/compute-network">GitHub</a> •
-    <a href="https://docs.compute-network.org">Документация</a> •
+    <a href="https://github.com/ari3lYT/p2pnet">GitHub</a> •
+    <a href="https://docs.p2pnet.org">Документация</a> •
     <a href="https://demo.compute-network.org">Демо</a> •
     <a href="https://blog.compute-network.org">Блог</a>
   </p>
 </div>
+vyt yflj yt 
