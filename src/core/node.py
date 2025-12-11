@@ -607,6 +607,8 @@ class ComputeNode:
                 future.cancel()
             if payload.job_id in self.scheduler_state.jobs_by_id:
                 self.scheduler_state.mark_result(payload.job_id, False, time.time())
+                self.reputation["failed_tasks"] += 1
+                self.reputation["penalties"] += 1
             return None
 
     async def _handle_job_assign(self, envelope: MessageEnvelope):
@@ -659,6 +661,9 @@ class ComputeNode:
                 function=job_payload.get("function", "square"),
             )
         start = time.time()
+        if payload.job_id in self.scheduler_state.jobs_by_id:
+            record = self.scheduler_state.jobs_by_id[payload.job_id]
+            record.status = JobStatus.RUNNING
         job_result = await self.job_executor.execute_single_job(task, job)
         runtime_ms = (time.time() - start) * 1000
         result_payload = JobResultPayload(
@@ -679,6 +684,8 @@ class ComputeNode:
     async def _handle_job_ack(self, envelope: MessageEnvelope):
         payload = JobAckPayload.from_dict(envelope.payload)
         logger.info("Node %s received JOB_ACK %s status=%s", self.node_id, payload.job_id, payload.status)
+        if payload.status == "accepted" and payload.job_id in self.scheduler_state.jobs_by_id:
+            self.scheduler_state.mark_ack(payload.job_id, time.time())
 
     async def _handle_job_result(self, envelope: MessageEnvelope):
         payload = JobResultPayload.from_dict(envelope.payload)
@@ -691,6 +698,12 @@ class ComputeNode:
         if payload.job_id in self.scheduler_state.jobs_by_id:
             self.scheduler_state.mark_result(payload.job_id, payload.success, now)
             self._job_latencies.append(payload.runtime_ms / 1000.0 if payload.runtime_ms else 0.0)
+        # Репутация
+        if payload.success:
+            self.reputation["successful_tasks"] += 1
+        else:
+            self.reputation["failed_tasks"] += 1
+            self.reputation["penalties"] += 1
 
     async def _handle_job_fail(self, envelope: MessageEnvelope):
         payload = JobFailPayload.from_dict(envelope.payload)
