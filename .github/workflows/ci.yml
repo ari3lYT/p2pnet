@@ -94,7 +94,7 @@ jobs:
           pip install bandit[toml]
           bandit -r src -f json -o bandit-report.json || true
       - name: Upload security scan results
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: always()
         with:
           name: security-scan
@@ -126,17 +126,9 @@ jobs:
         run: |
           echo "Deploying to server..."
           
-          # Create deployment package
+          # Create deployment package with website only
           mkdir -p deploy-package
-          cp -r index_new.html deploy-package/
-          cp -r docs/* deploy-package/
-          cp -r examples deploy-package/
-          cp -r scripts deploy-package/
-          cp -r src deploy-package/
-          cp -r requirements.txt deploy-package/
-          cp -r setup.py deploy-package/
-          cp -r README.md deploy-package/
-          cp -r CHANGELOG.md deploy-package/
+          cp index_new.html deploy-package/index.html
           
           # Deploy files using HTTPS (simpler approach)
           rsync -avz --delete \
@@ -154,16 +146,15 @@ jobs:
           echo "Testing server connection..."
           ssh -o StrictHostKeyChecking=no -o BatchMode=yes -o ConnectTimeout=10 ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} "echo 'Server connection successful'"
           
-      - name: Restart services
+      - name: Restart proxy service
         run: |
-          echo "Restarting services on server..."
-          ssh -o StrictHostKeyChecking=no ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} "cd ${SERVER_PATH} && pkill -f 'python.*main.py' || true"
-          ssh -o StrictHostKeyChecking=no ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} "cd ${SERVER_PATH} && nohup python src/main.py --host 0.0.0.0 --port 5555 > /dev/null 2>&1 &"
-          echo "Services restarted"
+          echo "Restarting proxy service on server..."
+          ssh -o StrictHostKeyChecking=no ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} "systemctl restart p2pnet-proxy"
+          echo "Proxy service restarted"
           
       - name: Verify deployment
         run: |
           echo "Verifying deployment..."
-          sleep 10
-          curl -f http://${{ secrets.SERVER_HOST }}:5555/health || exit 1
+          sleep 5
+          curl -f http://${{ secrets.SERVER_HOST }}:8080/ | grep -i 'p2pnet' || exit 1
           echo "Deployment verified successfully"
