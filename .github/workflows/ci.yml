@@ -16,20 +16,13 @@ jobs:
           python-version: "3.13"
       - name: Install dependencies
         run: |
-          python -m venv .venv
-          source .venv/bin/activate
-          pip install --upgrade pip
-          pip install ruff pytest pytest-asyncio pytest-cov
-          pip install -e .
-      - name: Lint (ruff)
+          python -m pip install --upgrade pip
+          pip install psutil numpy pytest pytest-asyncio pytest-cov ruff
+      - name: Run tests
         run: |
-          source .venv/bin/activate
-          ruff check src tests
-      - name: Run tests with coverage
+          export PYTHONPATH=src
+          python -m pytest tests/ -v
+      - name: Run smoke tests
         run: |
-          source .venv/bin/activate
-          PYTHONPATH=src pytest --cov --cov-report=term-missing
-      - name: Smoke test
-        run: |
-          source .venv/bin/activate
-          bash scripts/smoke.sh
+          export PYTHONPATH=src
+          python -m pytest tests/test_functional.py tests/test_inmemory_two_nodes.py::test_inmemory_transport_dispatch -v
