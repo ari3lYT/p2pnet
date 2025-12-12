@@ -4,326 +4,570 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>P2PNet - Децентрализованная сеть вычислений</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    animation: {
-                        'float': 'float 6s ease-in-out infinite',
-                        'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-                    },
-                    keyframes: {
-                        float: {
-                            '0%, 100%': { transform: 'translateY(0px)' },
-                            '50%': { transform: 'translateY(-20px)' },
-                        }
-                    }
-                }
+    <title>P2PNet - Децентрализованная вычислительная сеть</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: #ffffff;
+            --bg-secondary: #f8f9fa;
+            --bg-tertiary: #e9ecef;
+            --text-primary: #212529;
+            --text-secondary: #6c757d;
+            --text-muted: #adb5bd;
+            --accent-primary: #0066cc;
+            --accent-secondary: #0052a3;
+            --border-color: #dee2e6;
+            --gradient-primary: linear-gradient(135deg, #0066cc 0%, #0052a3 100%);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            color: var(--text-primary);
+            background-color: var(--bg-primary);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        header {
+            background-color: var(--bg-primary);
+            border-bottom: 1px solid var(--border-color);
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 0;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            text-decoration: none;
+            color: var(--text-primary);
+            letter-spacing: -0.5px;
+            transition: color 0.3s ease;
+        }
+
+        .logo:hover {
+            color: var(--accent-primary);
+        }
+
+        nav ul {
+            list-style: none;
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        nav a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+
+        nav a:hover {
+            color: var(--accent-primary);
+        }
+
+        main {
+            padding-top: 80px;
+            min-height: 100vh;
+        }
+
+        .hero {
+            padding: 6rem 0;
+            text-align: center;
+        }
+
+        .hero h1 {
+            font-size: 3.5rem;
+            font-weight: 800;
+            line-height: 1.2;
+            margin-bottom: 1.5rem;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero .subtitle {
+            font-size: 1.25rem;
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin: 0 auto 3rem;
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 0.75rem 2rem;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: inline-block;
+        }
+
+        .btn-primary {
+            background: var(--gradient-primary);
+            color: white;
+            border: none;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 102, 204, 0.3);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--accent-primary);
+            border: 2px solid var(--accent-primary);
+        }
+
+        .btn-secondary:hover {
+            background: var(--accent-primary);
+            color: white;
+        }
+
+        .features {
+            padding: 4rem 0;
+            background: var(--bg-secondary);
+        }
+
+        .features h2 {
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 3rem;
+            font-weight: 700;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .feature-card {
+            background: var(--bg-primary);
+            padding: 2rem;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+        }
+
+        .feature-icon {
+            width: 48px;
+            height: 48px;
+            background: var(--gradient-primary);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1.5rem;
+            color: white;
+            font-size: 1.5rem;
+        }
+
+        .feature-card h3 {
+            font-size: 1.25rem;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+        }
+
+        .feature-card p {
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        .tech {
+            padding: 4rem 0;
+        }
+
+        .tech h2 {
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 3rem;
+            font-weight: 700;
+        }
+
+        .tech-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+        }
+
+        .tech-item {
+            text-align: center;
+            padding: 1.5rem;
+            border-radius: 8px;
+            background: var(--bg-secondary);
+            transition: all 0.3s ease;
+        }
+
+        .tech-item:hover {
+            background: var(--bg-tertiary);
+        }
+
+        .tech-icon {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            color: var(--accent-primary);
+        }
+
+        .tech-item h4 {
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+        }
+
+        .tech-item p {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .docs {
+            padding: 4rem 0;
+            background: var(--bg-secondary);
+        }
+
+        .docs h2 {
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 3rem;
+            font-weight: 700;
+        }
+
+        .docs-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .doc-card {
+            background: var(--bg-primary);
+            padding: 2rem;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+        }
+
+        .doc-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .doc-card h3 {
+            font-size: 1.25rem;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+        }
+
+        .doc-card p {
+            color: var(--text-secondary);
+            margin-bottom: 1.5rem;
+            line-height: 1.6;
+        }
+
+        .doc-card a {
+            color: var(--accent-primary);
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.3s ease;
+        }
+
+        .doc-card a:hover {
+            color: var(--accent-secondary);
+        }
+
+        footer {
+            background: var(--bg-primary);
+            border-top: 1px solid var(--border-color);
+            padding: 3rem 0 2rem;
+        }
+
+        .footer-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 2rem;
+        }
+
+        .footer-content p {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .social-links {
+            display: flex;
+            gap: 2rem;
+        }
+
+        .social-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+
+        .social-links a:hover {
+            color: var(--accent-primary);
+        }
+
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+
+            .hero .subtitle {
+                font-size: 1.1rem;
+            }
+
+            nav ul {
+                gap: 1rem;
+            }
+
+            .cta-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .features-grid,
+            .tech-grid,
+            .docs-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .footer-content {
+                flex-direction: column;
+                text-align: center;
             }
         }
-    </script>
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 
-<body class="bg-gray-50 text-gray-800">
-    <!-- Navigation -->
-    <nav class="bg-white shadow-lg sticky top-0 z-50">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between h-16">
-                <div class="flex items-center">
-                    <span
-                        class="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                        <i class="fas fa-network-wired mr-2"></i>P2PNet
-                    </span>
-                </div>
-                <div class="flex items-center space-x-8">
-                    <a href="#features"
-                        class="text-gray-700 hover:text-blue-600 transition duration-300">Возможности</a>
-                    <a href="#how-it-works" class="text-gray-700 hover:text-blue-600 transition duration-300">Как это
-                        работает</a>
-                    <a href="#benefits"
-                        class="text-gray-700 hover:text-blue-600 transition duration-300">Преимущества</a>
-                    <a href="http://d2omg.ru/p2p/docs"
-                        class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition duration-300 shadow-md">
-                        <i class="fas fa-book mr-2"></i>Документация
-                    </a>
-                </div>
-            </div>
-        </div>
-    </nav>
-
-    <!-- Hero Section -->
-    <section class="relative overflow-hidden bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 py-20">
-        <div class="absolute inset-0 z-0">
-            <div
-                class="absolute top-20 left-10 w-72 h-72 bg-blue-200 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-float">
-            </div>
-            <div class="absolute top-40 right-10 w-72 h-72 bg-purple-200 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-float"
-                style="animation-delay: 2s;"></div>
-            <div class="absolute -bottom-8 left-20 w-72 h-72 bg-indigo-200 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-float"
-                style="animation-delay: 4s;"></div>
-        </div>
-        <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <h1
-                class="text-5xl md:text-7xl font-bold mb-6 bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 bg-clip-text text-transparent">
-                Будущее вычислений уже здесь
-            </h1>
-            <p class="text-xl md:text-2xl text-gray-600 mb-10 max-w-3xl mx-auto">
-                Объединяем мощности компьютеров по всему миру в единую децентрализованную сеть. Создаем суперкомпьютер
-                нового поколения.
-            </p>
-            <div class="flex flex-col sm:flex-row justify-center gap-4">
-                <a href="http://d2omg.ru/p2p/docs"
-                    class="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8 py-4 rounded-lg text-lg font-semibold hover:shadow-xl transform hover:-translate-y-1 transition duration-300">
-                    <i class="fas fa-rocket mr-2"></i>Начать использовать
-                </a>
-                <a href="#features"
-                    class="bg-white text-blue-600 border-2 border-blue-600 px-8 py-4 rounded-lg text-lg font-semibold hover:bg-blue-50 transition duration-300">
-                    <i class="fas fa-info-circle mr-2"></i>Узнать больше
-                </a>
-            </div>
-        </div>
-    </section>
-
-    <!-- Features Section -->
-    <section id="features" class="py-20 bg-white">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="text-center mb-16">
-                <h2 class="text-4xl font-bold mb-4">Ключевые возможности</h2>
-                <p class="text-xl text-gray-600">P2PNet — это больше, чем просто облако</p>
-            </div>
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                <div
-                    class="bg-gradient-to-br from-blue-50 to-indigo-50 p-8 rounded-2xl shadow-lg hover:shadow-xl transition duration-300">
-                    <div class="w-16 h-16 bg-blue-600 rounded-lg flex items-center justify-center mb-6">
-                        <i class="fas fa-shield-alt text-white text-2xl"></i>
-                    </div>
-                    <h3 class="text-2xl font-bold mb-4">Полная децентрализация</h3>
-                    <p class="text-gray-600">Нет центрального сервера, который может сломаться или контролировать ваши
-                        данные. Сеть — это мы.</p>
-                </div>
-                <div
-                    class="bg-gradient-to-br from-purple-50 to-pink-50 p-8 rounded-2xl shadow-lg hover:shadow-xl transition duration-300">
-                    <div class="w-16 h-16 bg-purple-600 rounded-lg flex items-center justify-center mb-6">
-                        <i class="fas fa-handshake text-white text-2xl"></i>
-                    </div>
-                    <h3 class="text-2xl font-bold mb-4">P2P-архитектура</h3>
-                    <p class="text-gray-600">Компьютеры напрямую обмениваются данными, делая сеть быстрой, надежной и
-                        независимой.</p>
-                </div>
-                <div
-                    class="bg-gradient-to-br from-green-50 to-teal-50 p-8 rounded-2xl shadow-lg hover:shadow-xl transition duration-300">
-                    <div class="w-16 h-16 bg-green-600 rounded-lg flex items-center justify-center mb-6">
-                        <i class="fas fa-chart-line text-white text-2xl"></i>
-                    </div>
-                    <h3 class="text-2xl font-bold mb-4">Умное ценообразование</h3>
-                    <p class="text-gray-600">Цена на вычисления динамически меняется в зависимости от спроса и
-                        предложения, как на бирже.</p>
-                </div>
-                <div
-                    class="bg-gradient-to-br from-yellow-50 to-orange-50 p-8 rounded-2xl shadow-lg hover:shadow-xl transition duration-300">
-                    <div class="w-16 h-16 bg-orange-600 rounded-lg flex items-center justify-center mb-6">
-                        <i class="fas fa-star text-white text-2xl"></i>
-                    </div>
-                    <h3 class="text-2xl font-bold mb-4">Система репутации</h3>
-                    <p class="text-gray-600">Надежные узлы получают больше задач и вознаграждений, создавая честную и
-                        прозрачную экосистему.</p>
-                </div>
-                <div
-                    class="bg-gradient-to-br from-red-50 to-rose-50 p-8 rounded-2xl shadow-lg hover:shadow-xl transition duration-300">
-                    <div class="w-16 h-16 bg-rose-600 rounded-lg flex items-center justify-center mb-6">
-                        <i class="fas fa-plug text-white text-2xl"></i>
-                    </div>
-                    <h3 class="text-2xl font-bold mb-4">Гибкие задачи</h3>
-                    <p class="text-gray-600">От простых математических расчетов до сложнейших моделей машинного
-                        обучения. Любая задача найдет свои ресурсы.</p>
-                </div>
-                <div
-                    class="bg-gradient-to-br from-indigo-50 to-blue-50 p-8 rounded-2xl shadow-lg hover:shadow-xl transition duration-300">
-                    <div class="w-16 h-16 bg-indigo-600 rounded-lg flex items-center justify-center mb-6">
-                        <i class="fas fa-bolt text-white text-2xl"></i>
-                    </div>
-                    <h3 class="text-2xl font-bold mb-4">Высокая производительность</h3>
-                    <p class="text-gray-600">Задачи распределяются по множеству узлов для параллельной обработки,
-                        сокращая время выполнения в разы.</p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- How It Works Section -->
-    <section id="how-it-works" class="py-20 bg-gray-50">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="text-center mb-16">
-                <h2 class="text-4xl font-bold mb-4">Как это работает?</h2>
-                <p class="text-xl text-gray-600">Просто и понятно за 3 шага</p>
-            </div>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                <div class="text-center">
-                    <div class="relative mb-6">
-                        <div
-                            class="w-24 h-24 bg-blue-600 rounded-full flex items-center justify-center text-white text-3xl font-bold mx-auto animate-pulse-slow">
-                            1</div>
-                        <div class="hidden md:block absolute top-12 -right-16 w-32 h-1 bg-gray-300"></div>
-                    </div>
-                    <h3 class="text-2xl font-bold mb-4">Присоединение к сети</h3>
-                    <p class="text-gray-600">Вы устанавливаете простую программу на свой компьютер (узел). Он сообщает
-                        сети, какие у него ресурсы: CPU, RAM, GPU.</p>
-                </div>
-                <div class="text-center">
-                    <div class="relative mb-6">
-                        <div class="w-24 h-24 bg-purple-600 rounded-full flex items-center justify-center text-white text-3xl font-bold mx-auto animate-pulse-slow"
-                            style="animation-delay: 1s;">2</div>
-                        <div class="hidden md:block absolute top-12 -right-16 w-32 h-1 bg-gray-300"></div>
-                    </div>
-                    <h3 class="text-2xl font-bold mb-4">Публикация задач</h3>
-                    <p class="text-gray-600">Владелец задачи описывает ее требования: "Нужно 10 ядер на 5 минут", "16 ГБ
-                        RAM для ML-модели".</p>
-                </div>
-                <div class="text-center">
-                    <div class="relative mb-6">
-                        <div class="w-24 h-24 bg-green-600 rounded-full flex items-center justify-center text-white text-3xl font-bold mx-auto animate-pulse-slow"
-                            style="animation-delay: 2s;">3</div>
-                    </div>
-                    <h3 class="text-2xl font-bold mb-4">Выполнение и оплата</h3>
-                    <p class="text-gray-600">Сеть находит подходящие узлы, распределяет задачу. После выполнения
-                        владелец платит участникам криптовалютой.</p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Benefits Section -->
-    <section id="benefits" class="py-20 bg-white">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="text-center mb-16">
-                <h2 class="text-4xl font-bold mb-4">Выгода для всех</h2>
-                <p class="text-xl text-gray-600">P2PNet создан для того, чтобы приносить пользу</p>
-            </div>
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                <div
-                    class="bg-gradient-to-br from-blue-50 to-blue-100 p-8 rounded-2xl shadow-lg text-center transform hover:scale-105 transition duration-300">
-                    <div class="text-5xl text-blue-600 mb-4">
-                        <i class="fas fa-piggy-bank"></i>
-                    </div>
-                    <h3 class="text-2xl font-bold mb-4 text-blue-800">Экономия для "Покупателей"</h3>
-                    <ul class="text-left text-gray-700 space-y-2">
-                        <li><i class="fas fa-check text-green-500 mr-2"></i>Экономия до 70% по сравнению с традиционными
-                            облаками</li>
-                        <li><i class="fas fa-check text-green-500 mr-2"></i>Нет скрытых платежей и жестких контрактов
-                        </li>
-                        <li><i class="fas fa-check text-green-500 mr-2"></i>Платите только за то, что использовали</li>
+<body>
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <a href="/" class="logo">P2PNet</a>
+                <nav>
+                    <ul>
+                        <li><a href="/p2p/docs/">Документация</a></li>
+                        <li><a href="https://github.com/ari3lYT/p2pnet" target="_blank">GitHub</a></li>
+                        <li><a href="#contact">Контакты</a></li>
                     </ul>
-                </div>
-                <div
-                    class="bg-gradient-to-br from-green-50 to-green-100 p-8 rounded-2xl shadow-lg text-center transform hover:scale-105 transition duration-300">
-                    <div class="text-5xl text-green-600 mb-4">
-                        <i class="fas fa-coins"></i>
-                    </div>
-                    <h3 class="text-2xl font-bold mb-4 text-green-800">Доход для "Продавцов"</h3>
-                    <ul class="text-left text-gray-700 space-y-2">
-                        <li><i class="fas fa-check text-green-500 mr-2"></i>Монетизация простаивающих ресурсов ПК</li>
-                        <li><i class="fas fa-check text-green-500 mr-2"></i>Пассивный доход 24/7</li>
-                        <li><i class="fas fa-check text-green-500 mr-2"></i>Чем мощнее ПК, тем выше доход</li>
-                    </ul>
-                </div>
-                <div
-                    class="bg-gradient-to-br from-purple-50 to-purple-100 p-8 rounded-2xl shadow-lg text-center transform hover:scale-105 transition duration-300">
-                    <div class="text-5xl text-purple-600 mb-4">
-                        <i class="fas fa-globe"></i>
-                    </div>
-                    <h3 class="text-2xl font-bold mb-4 text-purple-800">Выгода для "Планеты"</h3>
-                    <ul class="text-left text-gray-700 space-y-2">
-                        <li><i class="fas fa-check text-green-500 mr-2"></i>Эффективное использование мощностей</li>
-                        <li><i class="fas fa-check text-green-500 mr-2"></i>Снижение потребности в дата-центрах</li>
-                        <li><i class="fas fa-check text-green-500 mr-2"></i>Уменьшение углеродного следа</li>
-                    </ul>
-                </div>
+                </nav>
             </div>
         </div>
-    </section>
+    </header>
 
-    <!-- CTA Section -->
-    <section id="cta" class="py-20 bg-gradient-to-r from-blue-600 to-purple-600 text-white">
-        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <h2 class="text-4xl font-bold mb-6">Готовы стать частью будущего?</h2>
-            <p class="text-xl mb-8 opacity-90">Присоединяйтесь к революции в мире вычислений. Независимо от того, хотите
-                ли вы арендовать мощности или предоставить свои, P2PNet открыт для всех.</p>
-            <a href="http://d2omg.ru/p2p/docs"
-                class="bg-white text-blue-600 px-8 py-4 rounded-lg text-lg font-semibold hover:bg-gray-100 transition duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1 inline-block">
-                <i class="fas fa-book-open mr-2"></i>Перейти к документации
-            </a>
-        </div>
-    </section>
-
-    <!-- Footer -->
-    <footer class="bg-gray-900 text-white py-12">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex flex-col md:flex-row justify-between items-center">
-                <div class="mb-6 md:mb-0">
-                    <span
-                        class="text-2xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
-                        <i class="fas fa-network-wired mr-2"></i>P2PNet
-                    </span>
-                    <p class="mt-2 text-gray-400">Проект с открытым исходным кодом. Строим будущее вместе!</p>
-                </div>
-                <div class="flex space-x-6">
-                    <a href="https://github.com/ari3lYT/p2pnet" target="_blank"
-                        class="text-gray-400 hover:text-white transition duration-300">
-                        <i class="fab fa-github text-2xl"></i>
-                    </a>
-                    <a href="#" class="text-gray-400 hover:text-white transition duration-300">
-                        <i class="fab fa-twitter text-2xl"></i>
-                    </a>
-                    <a href="#" class="text-gray-400 hover:text-white transition duration-300">
-                        <i class="fab fa-discord text-2xl"></i>
-                    </a>
-                    <a href="#" class="text-gray-400 hover:text-white transition duration-300">
-                        <i class="fab fa-telegram text-2xl"></i>
-                    </a>
+    <main>
+        <section class="hero">
+            <div class="container">
+                <h1>Децентрализованная P2P вычислительная сеть</h1>
+                <p class="subtitle">Горизонтальная платформа для распределенных вычислений с использованием
+                    compute-кредитов</p>
+                <div class="cta-buttons">
+                    <a href="/p2p/docs/" class="btn btn-primary">Начать работу</a>
+                    <a href="https://github.com/ari3lYT/p2pnet" class="btn btn-secondary" target="_blank">Исходный
+                        код</a>
                 </div>
             </div>
-            <div class="mt-8 pt-8 border-t border-gray-800 text-center text-gray-400">
-                <p>&copy; 2025 P2PNet. Все права защищены.</p>
+        </section>
+
+        <section class="features">
+            <div class="container">
+                <h2>Ключевые особенности</h2>
+                <div class="features-grid">
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-network-wired"></i>
+                        </div>
+                        <h3>Децентрализация</h3>
+                        <p>Нет единого центра управления. Каждый узел является равноправным участником сети с прямым
+                            взаимодействием между узлами.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-coins"></i>
+                        </div>
+                        <h3>Compute-кредиты</h3>
+                        <p>Система учета ресурсов без денег. Кредиты начисляются за выполнение задач и используются для
+                            оплаты вычислительных мощностей.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-shield-alt"></i>
+                        </div>
+                        <h3>Безопасность</h3>
+                        <p>Sandbox изоляция для безопасного выполнения кода. Ресурсные лимиты и криптографические
+                            подписи защищают от злоупотреблений.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <h3>Динамическое ценообразование</h3>
+                        <p>Адаптивные цены на основе спроса и предложения. Репутационная система влияет на стоимость
+                            услуг.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-expand-arrows-alt"></i>
+                        </div>
+                        <h3>Масштабируемость</h3>
+                        <p>Горизонтальное масштабирование от одного узла до тысяч. Высокая доступность отказоустойчивой
+                            архитектуры.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-brain"></i>
+                        </div>
+                        <h3>ML/AI поддержка</h3>
+                        <p>Оптимизированная работа с машинным обучением. Поддержка инференса и обучения нейронных сетей.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="tech">
+            <div class="container">
+                <h2>Технологический стек</h2>
+                <div class="tech-grid">
+                    <div class="tech-item">
+                        <div class="tech-icon">
+                            <i class="fab fa-python"></i>
+                        </div>
+                        <h4>Python 3.11+</h4>
+                        <p>Основной язык реализации</p>
+                    </div>
+                    <div class="tech-item">
+                        <div class="tech-icon">
+                            <i class="fas fa-project-diagram"></i>
+                        </div>
+                        <h4>AsyncIO</h4>
+                        <p>Асинхронное сетевое взаимодействие</p>
+                    </div>
+                    <div class="tech-item">
+                        <div class="tech-icon">
+                            <i class="fas fa-lock"></i>
+                        </div>
+                        <h4>TLS 1.3</h4>
+                        <p>Шифрование каналов связи</p>
+                    </div>
+                    <div class="tech-item">
+                        <div class="tech-icon">
+                            <i class="fas fa-cube"></i>
+                        </div>
+                        <h4>Sandbox</h4>
+                        <p>Процессная изоляция</p>
+                    </div>
+                    <div class="tech-item">
+                        <div class="tech-icon">
+                            <i class="fas fa-chart-bar"></i>
+                        </div>
+                        <h4>Dynamic Pricing</h4>
+                        <p>Умное ценообразование</p>
+                    </div>
+                    <div class="tech-item">
+                        <div class="tech-icon">
+                            <i class="fas fa-star"></i>
+                        </div>
+                        <h4>Reputation System</h4>
+                        <p>Репутационная система</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="docs">
+            <div class="container">
+                <h2>Документация</h2>
+                <div class="docs-grid">
+                    <div class="doc-card">
+                        <h3>Быстрый старт</h3>
+                        <p>Установка и настройка P2PNet за 5 минут. Пошаговое руководство для начинающих.</p>
+                        <a href="/p2p/docs/getting-started.html">Читать →</a>
+                    </div>
+                    <div class="doc-card">
+                        <h3>Архитектура сети</h3>
+                        <p>Подробное описание архитектуры системы, принципов работы и компонентов сети.</p>
+                        <a href="/p2p/docs/ARCHITECTURE_OVERVIEW.html">Читать →</a>
+                    </div>
+                    <div class="doc-card">
+                        <h3>API Справочник</h3>
+                        <p>Полное описание API для интеграции с другими системами и управления сетью.</p>
+                        <a href="/p2p/docs/api-reference.html">Читать →</a>
+                    </div>
+                    <div class="doc-card">
+                        <h3>Примеры использования</h3>
+                        <p>Практические примеры кода для различных типов задач и сценариев использования.</p>
+                        <a href="/p2p/docs/examples.html">Читать →</a>
+                    </div>
+                    <div class="doc-card">
+                        <h3>Развертывание</h3>
+                        <p>Инструкции по развертыванию в Docker, Kubernetes и корпоративных средах.</p>
+                        <a href="/p2p/docs/deployment.html">Читать →</a>
+                    </div>
+                    <div class="doc-card">
+                        <h3>Безопасность</h3>
+                        <p>Механизмы защиты, лучшие практики и рекомендации по безопасности системы.</p>
+                        <a href="/p2p/docs/security.html">Читать →</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer id="contact">
+        <div class="container">
+            <div class="footer-content">
+                <p>&copy; 2025 P2PNet. Проект с открытым исходным кодом.</p>
+                <div class="social-links">
+                    <a href="https://github.com/ari3lYT/p2pnet" target="_blank">
+                        <i class="fab fa-github"></i> GitHub
+                    </a>
+                    <a href="https://t.me/gweles" target="_blank">
+                        <i class="fab fa-telegram"></i> Telegram
+                    </a>
+                    <a href="mailto:ari3l@d2omg.ru">
+                        <i class="fas fa-envelope"></i> Email
+                    </a>
+                </div>
             </div>
         </div>
     </footer>
-
-    <script>
-        // Smooth scrolling
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function (e) {
-                e.preventDefault();
-                document.querySelector(this.getAttribute('href')).scrollIntoView({
-                    behavior: 'smooth'
-                });
-            });
-        });
-
-        // Add animation on scroll
-        const observerOptions = {
-            threshold: 0.1,
-            rootMargin: '0px 0px -100px 0px'
-        };
-
-        const observer = new IntersectionObserver(function (entries) {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.style.opacity = '1';
-                    entry.target.style.transform = 'translateY(0)';
-                }
-            });
-        }, observerOptions);
-
-        document.querySelectorAll('section').forEach(section => {
-            section.style.opacity = '0';
-            section.style.transform = 'translateY(20px)';
-            section.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
-            observer.observe(section);
-        });
-    </script>
 </body>
 
 </html>

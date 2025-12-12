@@ -1,442 +1,627 @@
-# 🚀 Быстрый старт
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Быстрый старт - P2PNet</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-## 📋 Содержание
+        :root {
+            --bg-primary: #ffffff;
+            --bg-secondary: #f8f9fa;
+            --bg-tertiary: #e9ecef;
+            --text-primary: #212529;
+            --text-secondary: #6c757d;
+            --text-muted: #adb5bd;
+            --accent-primary: #0066cc;
+            --accent-secondary: #0052a3;
+            --border-color: #dee2e6;
+            --gradient-primary: linear-gradient(135deg, #0066cc 0%, #0052a3 100%);
+        }
 
-- [Требования системы](#требования-системы)
-- [Установка](#установка)
-- [Запуск первого узла](#запуск-первого-узла)
-- [Проверка работы](#проверка-работы)
-- [Базовые примеры](#базовые-примеры)
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            color: var(--text-primary);
+            background-color: var(--bg-primary);
+        }
 
----
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
 
-## 🎯 Требования системы
+        header {
+            background-color: var(--bg-primary);
+            border-bottom: 1px solid var(--border-color);
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
 
-### Системные требования
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 0;
+        }
 
-- **Python 3.8+** - основная среда выполнения
-- **Операционная система**: Linux, macOS, Windows
-- **RAM**: Не менее 1GB для базовой работы
-- **Диск**: Не менее 1GB свободного места
-- **Сеть**: Интернет подключение для работы с глобальной сетью
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            text-decoration: none;
+            color: var(--text-primary);
+            letter-spacing: -0.5px;
+            transition: color 0.3s ease;
+        }
 
-### Рекомендуемые конфигурации
+        .logo:hover {
+            color: var(--accent-primary);
+        }
 
-#### Минимальная конфигурация
-- CPU: 2 ядра
-- RAM: 2GB
-- Хранение: 10GB SSD
-- Сеть: 10Mbps
+        nav ul {
+            list-style: none;
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+        }
 
-#### Оптимальная конфигурация
-- CPU: 4+ ядра
-- RAM: 8GB+ 
-- Хранение: 50GB+ SSD
-- Сеть: 100Mbps+
-- GPU: Опционально для ML задач
+        nav a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
 
----
+        nav a:hover {
+            color: var(--accent-primary);
+        }
 
-## 🛠️ Установка
+        main {
+            padding-top: 80px;
+            min-height: 100vh;
+        }
 
-### 1. Клонируем репозиторий
+        .hero {
+            padding: 4rem 0;
+            text-align: center;
+            background: var(--bg-secondary);
+        }
 
-```bash
-# Клонируем репозиторий
-git clone https://github.com/ari3lYT/p2pnet.git
-cd p2pnet
+        .hero h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+        }
 
-# Или для SSH
-git clone git@github.com:p2pnet/p2pnet.git
-cd p2pnet
-```
+        .hero .subtitle {
+            font-size: 1.25rem;
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin: 0 auto 2rem;
+        }
 
-### 2. Создаем виртуальное окружение
+        .content {
+            padding: 3rem 0;
+        }
 
-```bash
-# Для Linux/macOS
-python -m venv venv
-source venv/bin/activate
+        .content h2 {
+            font-size: 2rem;
+            margin-bottom: 1.5rem;
+            color: var(--text-primary);
+            font-weight: 700;
+        }
 
-# Для Windows
-python -m venv venv
-venv\Scripts\activate
-```
+        .content h3 {
+            font-size: 1.5rem;
+            margin: 2rem 0 1rem 0;
+            color: var(--text-primary);
+            font-weight: 600;
+        }
 
-### 3. Устанавливаем зависимости
+        .content h4 {
+            font-size: 1.25rem;
+            margin: 1.5rem 0 0.75rem 0;
+            color: var(--text-primary);
+            font-weight: 600;
+        }
 
-```bash
-# Устанавливаем основные зависимости
-pip install -r requirements.txt
+        .content p {
+            color: var(--text-secondary);
+            margin-bottom: 1rem;
+            line-height: 1.6;
+        }
 
-# Для разработки
-pip install -r requirements-dev.txt
+        .content ul {
+            color: var(--text-secondary);
+            margin-left: 2rem;
+            margin-bottom: 1rem;
+        }
 
-# Опционально: GPU поддержка
-pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu
-```
+        .content li {
+            margin-bottom: 0.5rem;
+        }
 
-### 4. Проверяем установку
+        .content pre {
+            background: var(--bg-tertiary);
+            padding: 1.5rem;
+            border-radius: 8px;
+            overflow-x: auto;
+            border: 1px solid var(--border-color);
+            margin: 1rem 0;
+        }
 
-```bash
-# Запуск тестов
-python -m pytest tests/
+        .content code {
+            background: var(--bg-tertiary);
+            padding: 0.2rem 0.4rem;
+            border-radius: 4px;
+            color: var(--accent-primary);
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 0.9rem;
+        }
 
-# Проверка версии
-python src/main.py --version
-```
+        .content .highlight {
+            background: var(--bg-secondary);
+            padding: 1.5rem;
+            border-radius: 8px;
+            border-left: 4px solid var(--accent-primary);
+            margin: 1.5rem 0;
+        }
 
-### 5. Конфигурация
+        .content .highlight p {
+            color: var(--text-primary);
+            margin-bottom: 0;
+        }
 
-```bash
-# Копируем пример конфигурации
-cp config/network_config.json.example config/network_config.json
+        .step-card {
+            background: var(--bg-secondary);
+            padding: 2rem;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            margin: 2rem 0;
+            position: relative;
+            transition: all 0.3s ease;
+        }
 
-# Редактируем конфигурацию под свои нужды
-nano config/network_config.json
-```
+        .step-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
 
----
+        .step-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--gradient-primary);
+            border-radius: 3px 3px 0 0;
+        }
 
-## 🚀 Запуск первого узла
+        .step-number {
+            display: inline-block;
+            background: var(--gradient-primary);
+            color: white;
+            width: 2.5rem;
+            height: 2.5rem;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 2.5rem;
+            font-weight: bold;
+            margin-right: 1rem;
+            font-size: 1.1rem;
+        }
 
-### Базовый запуск
+        .requirements {
+            background: var(--bg-secondary);
+            padding: 2rem;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            margin: 2rem 0;
+        }
 
-```bash
-# Запуск узла по умолчанию
-python src/main.py
+        .requirements h4 {
+            color: var(--accent-primary);
+            margin-bottom: 1.5rem;
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
 
-# Запуск с указанными параметрами
-python src/main.py --host 0.0.0.0 --port 5555 --debug
+        .requirements ul {
+            margin-left: 1rem;
+        }
 
-# Запуск с конфигурационным файлом
-python src/main.py --config config/network_config.json
-```
+        .requirements li {
+            margin-bottom: 0.75rem;
+            color: var(--text-secondary);
+            font-size: 1rem;
+        }
 
-### Режимы запуска
+        .requirements .requirement-group {
+            margin-bottom: 1.5rem;
+        }
 
-#### 1. Стандартный режим
-```bash
-python src/main.py
-```
-- Автоматическое обнаружение сетей
-- Подключение к известным bootstrap узлам
-- Работа в локальной сети или через интернет
+        .requirements .requirement-group h5 {
+            color: var(--text-primary);
+            margin-bottom: 0.75rem;
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
 
-#### 2. Seed-режим (для серверов)
-```bash
-python src/main.py --seed --host 0.0.0.0 --port 5555
-```
-- Запуск как доверенного seed-узла
-- Генерация root-ключей и сертификатов
-- Создание подписанной конфигурации сети
+        .nav-links {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 3rem;
+            padding-top: 2rem;
+            border-top: 1px solid var(--border-color);
+        }
 
-#### 3. Глобальный режим
-```bash
-python src/main.py --global
-```
-- Поиск узлов по всему миру
-- Подключение к глобальным DHT сетям
-- Использование публичных реестров узлов
+        .nav-links a {
+            color: var(--accent-primary);
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
 
-#### 4. Публичный режим
-```bash
-python src/main.py --public
-```
-- Работа как публичный узел с белым IP
-- Принятие подключений от других узлов
-- Регистрация в глобальных сетях
+        .nav-links a:hover {
+            color: var(--accent-secondary);
+        }
 
-### Параметры командной строки
+        .nav-links i {
+            font-size: 1.1rem;
+        }
 
-| Параметр | Описание | Пример |
-|----------|----------|--------|
-| `--host` | Адрес для прослушивания | `--host 0.0.0.0` |
-| `--port` | Порт для прослушивания | `--port 5555` |
-| `--bootstrap` | Bootstrap узлы | `--bootstrap d2omg.ru:5555` |
-| `--seed` | Запуск в seed-режиме | `--seed` |
-| `--public` | Запуск в публичном режиме | `--public` |
-| `--global` | Глобальный режим поиска | `--global` |
-| `--config` | Файл конфигурации | `--config config.json` |
-| `--debug` | Режим отладки | `--debug` |
+        footer {
+            background: var(--bg-secondary);
+            border-top: 1px solid var(--border-color);
+            padding: 3rem 0 2rem;
+            margin-top: 4rem;
+        }
 
----
+        .footer-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 2rem;
+        }
 
-## ✅ Проверка работы
+        .footer-content p {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
 
-### 1. Проверка статуса
+        .social-links {
+            display: flex;
+            gap: 2rem;
+        }
 
-```bash
-# Проверка статуса сети
-python src/main.py --status
+        .social-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
 
-# Проверка здоровья
-python src/main.py --health
+        .social-links a:hover {
+            color: var(--accent-primary);
+        }
 
-# Экспорт данных
-python src/main.py --export-data
-```
-
-### 2. Тестовое соединение
-
-```bash
-# Запуск тестового клиента
-python examples/basic_usage.py
-
-# Или интерактивный тест
-python src/main.py --bootstrap d2omg.ru:5555
-# В интерфейсе ввести: test
-```
-
-### 3. Мониторинг работы
-
-```bash
-# Просмотр логов
-tail -f compute_network.log
-
-# Мониторинг в реальном времени
-python tools/monitor.py
-```
-
----
-
-## 💡 Базовые примеры
-
-### Пример 1: Простые вычисления
-
-```python
-import asyncio
-import sys
-import os
-sys.path.append(os.path.join(os.path.dirname(__file__), 'src'))
-
-from main import ComputeNetwork
-from core.task import Task, TaskType, TaskPriority
-
-async def simple_computations():
-    print("🧮 Простые вычисления")
-    
-    # Создаем сеть
-    network = ComputeNetwork(host='127.0.0.1', port=5558)
-    
-    try:
-        await network.start()
-        await asyncio.sleep(2)
-        
-        # Задача: Сумма чисел от 1 до 1000
-        sum_task = Task.create_range_reduce(
-            owner_id=network.node.node_id,
-            start=1,
-            end=1000,
-            operation="sum",
-            requirements={'cpu_percent': 50.0, 'ram_gb': 1.0},
-            privacy={
-                "mode": "shard",
-                "zk_verify": "basic"
+        @media (max-width: 768px) {
+            nav ul {
+                gap: 1rem;
             }
-        )
-        
-        task_id = await network.submit_task(sum_task.to_dict())
-        print(f"✅ Задача суммы создана: {task_id}")
-        
-        # Ждем завершения
-        await asyncio.sleep(10)
-        
-        # Проверяем результат
-        status = await network.get_task_status(task_id)
-        print(f"📊 Результат: {status}")
-        
-    finally:
-        await network.stop()
-
-# Запуск
-asyncio.run(simple_computations())
-```
-
-### Пример 2: Матричные операции
-
-```python
-import asyncio
-import sys
-import os
-sys.path.append(os.path.join(os.path.dirname(__file__), 'src'))
-
-from main import ComputeNetwork
-from core.task import Task, TaskType, TaskPriority
-
-async def matrix_example():
-    print("🔢 Матричные операции")
-    
-    network = ComputeNetwork(host='127.0.0.1', port=5559)
-    
-    try:
-        await network.start()
-        await asyncio.sleep(2)
-        
-        # Создаем матрицы
-        matrix1 = [[1, 2], [3, 4]]
-        matrix2 = [[5, 6], [7, 8]]
-        
-        # Задача: Умножение матриц
-        task = Task.create_matrix_ops(
-            owner_id=network.node.node_id,
-            matrix1=matrix1,
-            matrix2=matrix2,
-            operation="multiply",
-            requirements={'cpu_percent': 50.0, 'ram_gb': 1.0}
-        )
-        
-        task_id = await network.submit_task(task.to_dict())
-        print(f"✅ Задача умножения создана: {task_id}")
-        
-        await asyncio.sleep(15)
-        
-        # Проверяем результат
-        status = await network.get_task_status(task_id)
-        print(f"📊 Результат умножения: {status}")
-        
-    finally:
-        await network.stop()
-
-# Запуск
-asyncio.run(matrix_example())
-```
-
-### Пример 3: Machine Learning
-
-```python
-import asyncio
-import sys
-import os
-sys.path.append(os.path.join(os.path.dirname(__file__), 'src'))
-
-from main import ComputeNetwork
-from core.task import Task, TaskType, TaskPriority
-
-async def ml_example():
-    print("🤖 Machine Learning пример")
-    
-    network = ComputeNetwork(host='127.0.0.1', port=5560)
-    
-    try:
-        await network.start()
-        await asyncio.sleep(2)
-        
-        # Генерируем тестовые данные
-        train_data = [[[1, 2], [0]], [[3, 4], [1]], [[5, 6], [0]]]
-        
-        # Задача: Обучение модели
-        train_task = Task.create_ml_train_step(
-            owner_id=network.node.node_id,
-            model_path="models/test_model.pkl",
-            train_data=train_data,
-            model_type="sklearn",
-            requirements={'cpu_percent': 60.0, 'ram_gb': 2.0}
-        )
-        
-        task_id = await network.submit_task(train_task.to_dict())
-        print(f"✅ Задача обучения создана: {task_id}")
-        
-        await asyncio.sleep(20)
-        
-        # Проверяем результат
-        status = await network.get_task_status(task_id)
-        print(f"📊 Результат обучения: {status}")
-        
-    finally:
-        await network.stop()
-
-# Запуск
-asyncio.run(ml_example())
-```
-
-### Пример 4: Пакетная обработка
-
-```python
-import asyncio
-import sys
-import os
-sys.path.append(os.path.join(os.path.dirname(__file__), 'src'))
-
-from main import ComputeNetwork
-from core.task import Task, TaskType, TaskPriority
-
-async def batch_processing_example():
-    print("📦 Пакетная обработка данных")
-    
-    network = ComputeNetwork(host='127.0.0.1', port=5561)
-    
-    try:
-        await network.start()
-        await asyncio.sleep(2)
-        
-        # Создаем большой набор данных
-        large_dataset = list(range(1, 10001))
-        
-        # Разбиваем на пакеты
-        batch_size = 1000
-        batches = [large_dataset[i:i + batch_size] for i in range(0, len(large_dataset), batch_size)]
-        
-        print(f"📦 Создано {len(batches)} пакетов по {batch_size} элементов")
-        
-        # Создаем задачи для каждого пакета
-        task_ids = []
-        for i, batch in enumerate(batches):
-            task = Task.create_map_reduce(
-                owner_id=network.node.node_id,
-                data=batch,
-                map_function="x ** 2",
-                reduce_function="sum",
-                requirements={'cpu_percent': 40.0, 'ram_gb': 1.0}
-            )
             
-            task_id = await network.submit_task(task.to_dict())
-            task_ids.append(task_id)
-            print(f"✅ Задача пакета {i+1} создана: {task_id}")
-        
-        # Ждем завершения всех задач
-        await asyncio.sleep(30)
-        
-        # Собираем результаты
-        total_sum = 0
-        for task_id in task_ids:
-            status = await network.get_task_status(task_id)
-            if status['status'] == 'completed':
-                result = status.get('result', {})
-                total_sum += result.get('sum', 0)
-                print(f"✅ Пакет завершен, сумма: {result.get('sum', 0)}")
-        
-        print(f"🎉 Обработка завершена, итоговая сумма: {total_sum}")
-        
-    finally:
-        await network.stop()
+            .hero h1 {
+                font-size: 2rem;
+            }
+            
+            .hero .subtitle {
+                font-size: 1.1rem;
+            }
+            
+            .content {
+                padding: 2rem 0;
+            }
+            
+            .step-card {
+                padding: 1.5rem;
+                margin: 1.5rem 0;
+            }
+            
+            .nav-links {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            .footer-content {
+                flex-direction: column;
+                text-align: center;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <a href="/" class="logo">P2PNet</a>
+                <nav>
+                    <ul>
+                        <li><a href="/">Главная</a></li>
+                        <li><a href="/p2p/docs/">Документация</a></li>
+                        <li><a href="https://github.com/ari3lYT/p2pnet" target="_blank">GitHub</a></li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </header>
 
-# Запуск
-asyncio.run(batch_processing_example())
-```
+    <main>
+        <div class="container">
+            <section class="hero">
+                <h1>Быстрый старт с P2PNet</h1>
+                <p class="subtitle">За 5 минут вы запустите свой первый узел в децентрализованной сети</p>
+            </section>
 
----
+            <section class="content">
+                <div class="container">
+                    <div class="highlight">
+                        <p><i class="fas fa-rocket" style="color: var(--accent-primary); margin-right: 0.5rem;"></i> Весь процесс занимает не более 5 минут. Готовы начать?</p>
+                    </div>
 
-## 🎯 Следующие шаги
+                    <h2>Введение</h2>
+                    <p>Это руководство проведет вас через процесс установки, настройки и запуска вашего первого узла в сети P2PNet. Вы сможете предоставлять вычислительные ресурсы или использовать сеть для выполнения задач.</p>
 
-После успешного запуска первого узла:
+                    <div class="requirements">
+                        <h4>Требования системы</h4>
+                        
+                        <div class="requirement-group">
+                            <h5>Минимальные требования</h5>
+                            <ul>
+                                <li>Операционная система: Linux, macOS или Windows</li>
+                                <li>Python 3.11 или выше</li>
+                                <li>Доступ в интернет</li>
+                                <li>Минимум 2 ГБ оперативной памяти</li>
+                                <li>Минимум 1 ГБ свободного места на диске</li>
+                            </ul>
+                        </div>
 
-1. **Добавьте больше узлов** в сеть
-2. **Настройте конфигурацию** под ваши нужды
-3. **Изучите API** для интеграции с другими системами
-4. **Попробуйте продвинутые примеры** из раздела examples/
-5. **Настройте мониторинг** и логирование
+                        <div class="requirement-group">
+                            <h5>Рекомендуемые требования</h5>
+                            <ul>
+                                <li>4+ ядра процессора</li>
+                                <li>8+ ГБ оперативной памяти</li>
+                                <li>SSD накопитель</li>
+                                <li>Стабильное интернет-соединение</li>
+                                <li>Опционально: GPU для ML задач</li>
+                            </ul>
+                        </div>
+                    </div>
 
-> 💡 **Совет**: Для начала запустите несколько узлов на одной машине с разными портами, чтобы понять принцип работы сети.
+                    <h2>Установка</h2>
+                    
+                    <div class="step-card">
+                        <h3><span class="step-number">1</span>Клонирование репозитория</h3>
+                        <p>Сначала скачайте исходный код P2PNet с GitHub:</p>
+                        
+                        <pre><code>git clone https://github.com/ari3lYT/p2pnet.git
+cd p2pnet</code></pre>
+                    </div>
 
----
+                    <div class="step-card">
+                        <h3><span class="step-number">2</span>Установка зависимостей</h3>
+                        <p>Установите все необходимые Python пакеты:</p>
+                        
+                        <pre><code>pip install -r requirements.txt</code></pre>
+                        
+                        <p>Если вы используете Python 3.11+, рекомендуется создать виртуальное окружение:</p>
+                        
+                        <pre><code>python -m venv p2pnet-env
+source p2pnet-env/bin/activate  # Для Linux/macOS
+# или
+p2pnet-env\Scripts\activate     # Для Windows
+pip install -r requirements.txt</code></pre>
+                    </div>
 
-## 📚 Дополнительные ресурсы
+                    <div class="step-card">
+                        <h3><span class="step-number">3</span>Настройка конфигурации</h3>
+                        <p>Создайте конфигурационный файл для вашего узла:</p>
+                        
+                        <pre><code>{
+  "version": 1,
+  "node_id": "my-computer-001",
+  "host": "0.0.0.0",
+  "port": 5555,
+  "sandbox": {
+    "type": "process_isolation",
+    "resource_limits": {
+      "cpu_time_seconds": 30,
+      "memory_bytes": 104857600,
+      "file_size_bytes": 52428800
+    }
+  },
+  "pricing": {
+    "base_cpu_price": 0.01,
+    "base_gpu_price": 0.05,
+    "base_ram_price": 0.02
+  },
+  "network": {
+    "discovery_port": 5556,
+    "max_peers": 100,
+    "bootstrap_hosts": [
+      "127.0.0.1:5555"
+    ]
+  }
+}</code></pre>
+                        
+                        <div class="highlight">
+                            <p><i class="fas fa-info-circle" style="color: var(--accent-primary); margin-right: 0.5rem;"></i> Замените <code>my-computer-001</code> на уникальный идентификатор для вашего узла. Это поможет другим участникам сети идентифицировать ваш узел.</p>
+                        </div>
+                    </div>
 
-- [Полное руководство](../comprehensive-guide.md) - подробное описание всех возможностей
-- [API документация](../api-reference.md) - техническая документация API
-- [Примеры использования](../examples.md) - готовые примеры кода
-- [Руководство по развертыванию](../deployment.md) - продвинутые сценарии部署
-- [FAQ](../faq.md) - ответы на частые вопросы
+                    <div class="step-card">
+                        <h3><span class="step-number">4</span>Запуск узла</h3>
+                        <p>Запустите ваш узел в сети:</p>
+                        
+                        <pre><code>python src/main.py --config config.json</code></pre>
+                        
+                        <p>После запуска вы увидите логи подключения к сети:</p>
+                        
+                        <pre><code>🚀 Вычислительный узел запущен на 0.0.0.0:5555
+🆔 Node ID: abc123...
+💪 Возможности: CPU=2450, GPU=0, RAM=16.0GB
+🔗 Подключено к сети</code></pre>
+                    </div>
 
-🚀 **Готовы начать? Запустите свой первый узел прямо сейчас!**
+                    <div class="step-card">
+                        <h3><span class="step-number">5</span>Проверка работы</h3>
+                        <p>Убедитесь, что ваш узел работает корректно:</p>
+                        
+                        <pre><code>curl http://localhost:5555/status</code></pre>
+                        
+                        <p>Вы должны увидеть ответ в формате JSON:</p>
+                        
+                        <pre><code>{
+  "node_id": "abc123...",
+  "status": "active",
+  "capabilities": {
+    "cpu_score": 2450,
+    "gpu_score": 0,
+    "ram_gb": 16.0,
+    "cpu_usage": 15.2,
+    "ram_usage": 45.8
+  },
+  "peers_count": 5,
+  "active_tasks": 0,
+  "credits": 0.0
+}</code></pre>
+                    </div>
+
+                    <h2>Первая задача</h2>
+                    
+                    <p>Теперь, когда ваш узел запущен, вы можете отправить первую задачу в сеть:</p>
+                    
+                    <h3>Пример простой задачи</h3>
+                    
+                    <pre><code>import asyncio
+from src.main import ComputeNetwork
+from src.core.task import Task
+
+async def main():
+    # Создаем сеть
+    network = ComputeNetwork(host='127.0.0.1', port=5556)
+    await network.start()
+    
+    # Создаем задачу
+    task = Task.create_range_reduce(
+        owner_id=network.node.node_id,
+        start=1,
+        end=1000,
+        operation="sum",
+        requirements={
+            "cpu_percent": 50.0,
+            "ram_gb": 0.5,
+            "timeout_seconds": 30
+        },
+        config={
+            "max_price": 0.1,
+            "priority": "normal"
+        }
+    )
+    
+    # Подаем задачу
+    task_id = await network.submit_task(task.to_dict())
+    print(f"✅ Задача создана: {task_id}")
+    
+    # Ожидание завершения
+    import time
+    while True:
+        status = await network.get_task_status(task_id)
+        if status['status'] == 'completed':
+            print("Результат:", status['result'])
+            break
+        time.sleep(1)
+    
+    await network.stop()
+
+asyncio.run(main())</code></pre>
+
+                    <div class="highlight">
+                        <p><i class="fas fa-check-circle" style="color: var(--accent-primary); margin-right: 0.5rem;"></i> Поздравляем! Вы успешно запустили свой узел и выполнили первую задачу в сети P2PNet.</p>
+                    </div>
+
+                    <h2>Дальнейшие шаги</h2>
+                    
+                    <h3>1. Оптимизация производительности</h3>
+                    <ul>
+                        <li>Настройте количество выделяемых CPU ядер</li>
+                        <li>Оптимизируйте использование памяти</li>
+                        <li>Включите мониторинг для отслеживания производительности</li>
+                        <li>Настройте динамическое ценообразование</li>
+                    </ul>
+
+                    <h3>2. Безопасность</h3>
+                    <ul>
+                        <li>Используйте HTTPS для защищенной коммуникации</li>
+                        <li>Настройте брандмауэр</li>
+                        <li>Регулярно обновляйте систему</li>
+                        <li>Настройте ограничения ресурсов в sandbox</li>
+                    </ul>
+
+                    <h3>3. Мониторинг</h3>
+                    <ul>
+                        <li>Настраивайте логирование</li>
+                        <li>Используйте встроенные метрики</li>
+                        <li>Интегрируйте с системами мониторинга</li>
+                        <li>Следите за репутацией вашего узла</li>
+                    </ul>
+
+                    <h3>4. Интеграция</h3>
+                    <ul>
+                        <li>Изучите API для интеграции с вашими приложениями</li>
+                        <li>Создайте сложные pipeline задачи</li>
+                        <li>Интегрируйте ML модели в сеть</li>
+                        <li>Настройте автоматическое масштабирование</li>
+                    </ul>
+
+                    <div class="nav-links">
+                        <a href="/p2p/docs/"><i class="fas fa-arrow-left"></i> Вернуться к документации</a>
+                        <a href="/p2p/docs/examples.html"><i class="fas fa-laptop-code"></i> Примеры использования <i class="fas fa-arrow-right"></i></a>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <p>&copy; 2025 P2PNet. Проект с открытым исходным кодом.</p>
+                <div class="social-links">
+                    <a href="https://github.com/ari3lYT/p2pnet" target="_blank">
+                        <i class="fab fa-github"></i> GitHub
+                    </a>
+                    <a href="https://t.me/gweles" target="_blank">
+                        <i class="fab fa-telegram"></i> Telegram
+                    </a>
+                </div>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>

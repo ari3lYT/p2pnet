@@ -1,1424 +1,1013 @@
-# 📚 API Справочник
-
-## 📋 Содержание
-
-- [Обзор API](#обзор-api)
-- [Основные классы](#основные-классы)
-- [Сеть (ComputeNetwork)](#сеть-computenetwork)
-- [Узел (Node)](#узел-node)
-- [Задачи (Task)](#задачи-task)
-- [Compute-кредиты (Credits)](#compute-кредиты-credits)
-- [Репутация (Reputation)](#репутация-reputation)
-- [Sandbox (Sandbox)](#sandbox-sandbox)
-- [Примеры использования](#примеры-использования)
-- [Обработка ошибок](#обработка-ошибок)
-- [WebSocket API](#websocket-api)
-
----
-
-## 🎯 Обзор API
-
-API децентрализованной P2P вычислительной сети предоставляет программный интерфейс для взаимодействия с сетью, управления задачами, отслеживания выполнения и управления ресурсами.
-
-### Основные принципы API
-
-- **Асинхронность** - все методы API асинхронны и используют `async/await`
-- **Обработка ошибок** - исключения используются для ошибок, а не для обычного потока
-- **Валидация данных** - автоматическая валидация входных данных
-- **Типизация** - полная типизация с использованием Python type hints
-- **Документация** - встроенная документация и примеры
-
-### Структура API
-
-```
-src/
-├── main.py              # Основной класс ComputeNetwork
-├── core/
-│   ├── node.py          # Класс Node
-│   ├── task.py          # Класс Task
-│   ├── credits.py       # Класс Credits
-│   ├── reputation.py    # Класс Reputation
-│   └── ...
-├── sandbox/
-│   ├── execution.py     # Sandbox выполнение
-│   └── ...
-├── pricing/
-│   ├── dynamic.py       # Динамическое ценообразование
-│   └── ...
-└── network/
-    ├── discovery.py     # Обнаружение узлов
-    ├── routing.py       # Маршрутизация
-    └── protocol.py      # Протоколы
-```
-
----
-
-## 🔧 Основные классы
-
-### Импорт основных классов
-
-```python
-from src.main import ComputeNetwork
-from src.core.node import Node, Capabilities
-from src.core.task import Task, TaskType, TaskPriority, TaskStatus
-from src.core.credits import Credits, CreditTransaction
-from src.core.reputation import Reputation
-from src.sandbox.execution import Sandbox, SandboxType
-from src.pricing.dynamic import PricingEngine
-```
-
----
-
-## 🌐 Сеть (ComputeNetwork)
-
-Основной класс для взаимодействия с P2P сетью.
-
-### Конструктор
-
-```python
-class ComputeNetwork:
-    def __init__(
-        self,
-        host: str = "127.0.0.1",
-        port: int = 5557,
-        node_type: str = "client",
-        seed_nodes: Optional[List[str]] = None,
-        config_path: Optional[str] = None,
-        log_level: str = "INFO"
-    ):
-        """
-        Инициализация вычислительной сети
-        
-        Args:
-            host: Адрес для прослушивания
-            port: Порт для прослушивания
-            node_type: Тип узла (client, public, seed)
-            seed_nodes: Список seed-узлов для подключения
-            config_path: Путь к файлу конфигурации
-            log_level: Уровень логирования
-        """
-```
-
-### Основные методы
-
-#### Управление сетью
-
-```python
-async def start(self) -> None:
-    """Запуск сети"""
-    
-async def stop(self) -> None:
-    """Остановка сети"""
-    
-async def restart(self) -> None:
-    """Перезапуск сети"""
-    
-async def get_network_status(self) -> Dict[str, Any]:
-    """Получение статуса сети"""
-    
-async def get_node_info(self) -> Dict[str, Any]:
-    """Получение информации об узле"""
-```
-
-#### Управление задачами
-
-```python
-async def submit_task(self, task_data: Dict[str, Any]) -> str:
-    """
-    Подача задачи в сеть
-    
-    Args:
-        task_data: Данные задачи
-        
-    Returns:
-        task_id: Уникальный идентификатор задачи
-    """
-    
-async def get_task_status(self, task_id: str) -> Dict[str, Any]:
-    """
-    Получение статуса задачи
-    
-    Args:
-        task_id: Идентификатор задачи
-        
-    Returns:
-        status: Статус задачи и метрики
-    """
-    
-async def cancel_task(self, task_id: str) -> bool:
-    """
-    Отмена задачи
-    
-    Args:
-        task_id: Идентификатор задачи
-        
-    Returns:
-        success: Успешность отмены
-    """
-    
-async def get_task_result(self, task_id: str) -> Any:
-    """
-    Получение результата задачи
-    
-    Args:
-        task_id: Идентификатор задачи
-        
-    Returns:
-        result: Результат выполнения
-    """
-```
-
-#### Управление узлами
-
-```python
-async def get_nodes_list(self) -> List[Dict[str, Any]]:
-    """Получение списка узлов в сети"""
-    
-async def get_node_details(self, node_id: str) -> Dict[str, Any]:
-    """
-    Получение деталей узла
-    
-    Args:
-        node_id: Идентификатор узла
-        
-    Returns:
-        details: Детальная информация об узле
-    """
-    
-async def connect_to_node(self, node_id: str) -> bool:
-    """
-    Подключение к узлу
-    
-    Args:
-        node_id: Идентификатор узла
-        
-    Returns:
-        success: Успешность подключения
-    """
-    
-async def disconnect_from_node(self, node_id: str) -> bool:
-    """
-    Отключение от узла
-    
-    Args:
-        node_id: Идентификатор узла
-        
-    Returns:
-        success: Успешность отключения
-    """
-```
-
-#### Мониторинг и статистика
-
-```python
-async def get_network_metrics(self) -> Dict[str, Any]:
-    """Получение метрик сети"""
-    
-async def get_task_metrics(self) -> Dict[str, Any]:
-    """Получение метрик задач"""
-    
-async def get_resource_metrics(self) -> Dict[str, Any]:
-    """Получение метрик использования ресурсов"""
-    
-async def get_credit_metrics(self) -> Dict[str, Any]:
-    """Получение метрик кредитов"""
-```
-
-### Пример использования
-
-```python
-import asyncio
-from src.main import ComputeNetwork
-from src.core.task import Task, TaskType, TaskPriority
-
-async def main():
-    # Создание сети
-    network = ComputeNetwork(host="127.0.0.1", port=5557)
-    
-    try:
-        # Запуск сети
-        await network.start()
-        await asyncio.sleep(2)
-        
-        print(f"🆔 Node ID: {network.node.node_id}")
-        
-        # Создание задачи
-        task_data = {
-            "task_type": "range_reduce",
-            "owner_id": network.node.node_id,
-            "requirements": {
-                "cpu_percent": 50.0,
-                "ram_gb": 0.5,
-                "timeout_seconds": 30
-            },
-            "config": {
-                "operation": "sum",
-                "start": 1,
-                "end": 1000,
-                "max_price": 0.1,
-                "priority": TaskPriority.NORMAL.value
-            }
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Ссылка - P2PNet</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
-        
-        # Подача задачи
-        task_id = await network.submit_task(task_data)
-        print(f"✅ Задача создана: {task_id}")
-        
-        # Ожидание завершения
-        while True:
-            status = await network.get_task_status(task_id)
-            print(f"📊 Статус: {status['status']}")
-            
-            if status['status'] in ['completed', 'failed']:
-                break
-                
-            await asyncio.sleep(2)
-        
-        # Получение результата
-        if status['status'] == 'completed':
-            result = await network.get_task_result(task_id)
-            print(f"🎉 Результат: {result}")
-        
-    finally:
-        await network.stop()
 
-asyncio.run(main())
-```
-
----
-
-## 🖥️ Узел (Node)
-
-Класс, представляющий узел в сети.
-
-### Конструктор
-
-```python
-class Node:
-    def __init__(
-        self,
-        node_id: str,
-        host: str,
-        port: int,
-        capabilities: Optional[Capabilities] = None,
-        node_type: str = "client"
-    ):
-        """
-        Инициализация узла
-        
-        Args:
-            node_id: Уникальный идентификатор узла
-            host: Адрес узла
-            port: Порт узла
-            capabilities: Возможности узла
-            node_type: Тип узла
-        """
-```
-
-### Основные методы
-
-#### Управление узлом
-
-```python
-async def start(self) -> None:
-    """Запуск узла"""
-    
-async def stop(self) -> None:
-    """Остановка узла"""
-    
-async def restart(self) -> None:
-    """Перезапуск узла"""
-    
-async def get_status(self) -> Dict[str, Any]:
-    """Получение статуса узла"""
-```
-
-#### Управление возможностями
-
-```python
-def update_capabilities(self, capabilities: Dict[str, Any]) -> None:
-    """
-    Обновление возможностей узла
-    
-    Args:
-        capabilities: Новые возможности
-    """
-    
-def get_current_load(self) -> Dict[str, float]:
-    """Получение текущей загрузки"""
-    
-def is_available_for_task(self, task_requirements: Dict[str, Any]) -> bool:
-    """
-    Проверка доступности для задачи
-    
-    Args:
-        task_requirements: Требования к задаче
-        
-    Returns:
-        available: Доступен ли узел
-    """
-```
-
-#### Управление связями
-
-```python
-async def connect_to_peer(self, peer_id: str) -> bool:
-    """
-    Подключение к узлу-равному
-    
-    Args:
-        peer_id: Идентификатор узла
-        
-    Returns:
-        success: Успешность подключения
-    """
-    
-async def disconnect_from_peer(self, peer_id: str) -> bool:
-    """
-    Отключение от узла-равного
-    
-    Args:
-        peer_id: Идентификатор узла
-        
-    Returns:
-        success: Успешность отключения
-    """
-    
-def get_peer_list(self) -> List[Dict[str, Any]]:
-    """Получение списка связанных узлов"""
-```
-
-### Пример использования
-
-```python
-from src.core.node import Node, Capabilities
-
-async def node_example():
-    # Создание возможностей узла
-    capabilities = Capabilities(
-        cpu_score=8.0,
-        ram_gb=16.0,
-        disk_gb=500.0,
-        gpu_score=2.0,
-        max_concurrent_tasks=20
-    )
-    
-    # Создание узла
-    node = Node(
-        node_id="node-001",
-        host="192.168.1.100",
-        port=5557,
-        capabilities=capabilities,
-        node_type="public"
-    )
-    
-    try:
-        # Запуск узла
-        await node.start()
-        
-        # Получение статуса
-        status = await node.get_status()
-        print(f"📊 Статус узла: {status}")
-        
-        # Проверка доступности
-        task_requirements = {
-            "cpu_percent": 30.0,
-            "ram_gb": 2.0,
-            "timeout_seconds": 60
+        :root {
+            --bg-primary: #0a0a0a;
+            --bg-secondary: #1a1a1a;
+            --bg-tertiary: #2a2a2a;
+            --text-primary: #ffffff;
+            --text-secondary: #a0a0a0;
+            --text-tertiary: #666666;
+            --accent-primary: #00d4ff;
+            --accent-secondary: #0099cc;
+            --border-color: #333333;
+            --gradient-primary: linear-gradient(135deg, #00d4ff 0%, #0099cc 100%);
         }
-        
-        available = node.is_available_for_task(task_requirements)
-        print(f"✅ Доступность для задачи: {available}")
-        
-    finally:
-        await node.stop()
-```
 
----
-
-## 📋 Задачи (Task)
-
-Класс для управления задачами.
-
-### Конструктор
-
-```python
-class Task:
-    def __init__(
-        self,
-        task_id: str,
-        owner_id: str,
-        task_type: TaskType,
-        requirements: Dict[str, Any],
-        config: Dict[str, Any],
-        priority: TaskPriority = TaskPriority.NORMAL
-    ):
-        """
-        Инициализация задачи
-        
-        Args:
-            task_id: Уникальный идентификатор задачи
-            owner_id: Идентификатор владельца
-            task_type: Тип задачи
-            requirements: Требования к ресурсам
-            config: Конфигурация задачи
-            priority: Приоритет задачи
-        """
-```
-
-### Статические методы создания
-
-```python
-@staticmethod
-def create_range_reduce(
-    owner_id: str,
-    start: int,
-    end: int,
-    operation: str,
-    requirements: Dict[str, Any],
-    config: Dict[str, Any]
-) -> Task:
-    """Создание задачи range_reduce"""
-    
-@staticmethod
-def create_map(
-    owner_id: str,
-    data: List[Any],
-    operation: str,
-    requirements: Dict[str, Any],
-    config: Dict[str, Any]
-) -> Task:
-    """Создание задачи map"""
-    
-@staticmethod
-def create_map_reduce(
-    owner_id: str,
-    data: List[Any],
-    map_operation: str,
-    reduce_operation: str,
-    requirements: Dict[str, Any],
-    config: Dict[str, Any]
-) -> Task:
-    """Создание задачи map_reduce"""
-    
-@staticmethod
-def create_matrix_ops(
-    owner_id: str,
-    matrix_a: List[List[float]],
-    matrix_b: List[List[float]],
-    operation: str,
-    requirements: Dict[str, Any],
-    config: Dict[str, Any]
-) -> Task:
-    """Создание задачи matrix_ops"""
-    
-@staticmethod
-def create_ml_inference(
-    owner_id: str,
-    model_path: str,
-    input_data: Any,
-    requirements: Dict[str, Any],
-    config: Dict[str, Any]
-) -> Task:
-    """Создание задачи ml_inference"""
-    
-@staticmethod
-def create_ml_train_step(
-    owner_id: str,
-    model_path: str,
-    training_data: Any,
-    requirements: Dict[str, Any],
-    config: Dict[str, Any]
-) -> Task:
-    """Создание задачи ml_train_step"""
-```
-
-### Основные методы
-
-#### Управление задачей
-
-```python
-def to_dict(self) -> Dict[str, Any]:
-    """Преобразование в словарь"""
-    
-@classmethod
-def from_dict(cls, data: Dict[str, Any]) -> Task:
-    """Создание из словаря"""
-    
-def validate(self) -> List[str]:
-    """Валидация задачи"""
-    
-def estimate_cost(self, node_reputation: float) -> float:
-    """Оценка стоимости выполнения"""
-```
-
-#### Управление чанками
-
-```python
-def create_chunks(self, chunk_size: int = 100) -> List[Chunk]:
-    """Создание чанков задачи"""
-    
-def get_chunk_requirements(self, chunk_id: str) -> Dict[str, Any]:
-    """Получение требований к чанку"""
-    
-def aggregate_results(self, chunk_results: List[Any]) -> Any:
-    """Агрегация результатов чанков"""
-```
-
-### Пример использования
-
-```python
-from src.core.task import Task, TaskType, TaskPriority
-
-async def task_example():
-    # Создание задачи range_reduce
-    task = Task.create_range_reduce(
-        owner_id="user-001",
-        start=1,
-        end=10000,
-        operation="sum",
-        requirements={
-            "cpu_percent": 25.0,
-            "ram_gb": 1.0,
-            "timeout_seconds": 60,
-            "max_price": 0.05
-        },
-        config={
-            "priority": TaskPriority.NORMAL.value,
-            "chunk_size": 1000
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.8;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            overflow-x: hidden;
         }
-    )
-    
-    print(f"🆔 Задача создана: {task.task_id}")
-    print(f"📊 Тип: {task.task_type}")
-    print(f"💰 Оценка стоимости: {task.estimate_cost(0.8):.4f}")
-    
-    # Валидация
-    errors = task.validate()
-    if errors:
-        print(f"❌ Ошибки валидации: {errors}")
-    else:
-        print("✅ Задача валидна")
-    
-    # Создание чанков
-    chunks = task.create_chunks(chunk_size=2000)
-    print(f"🔢 Создано чанков: {len(chunks)}")
-    
-    # Преобразование в словарь
-    task_dict = task.to_dict()
-    print(f"📄 Размер словаря: {len(task_dict)} полей")
-```
 
----
-
-## 💰 Compute-кредиты (Credits)
-
-Класс для управления compute-кредитами.
-
-### Конструктор
-
-```python
-class Credits:
-    def __init__(
-        self,
-        initial_balance: float = 100.0,
-        max_balance: float = 10000.0,
-        min_transfer: float = 0.1
-    ):
-        """
-        Инициализация системы кредитов
-        
-        Args:
-            initial_balance: Начальный баланс
-            max_balance: Максимальный баланс
-            min_transfer: Минимальный перевод
-        """
-```
-
-### Основные методы
-
-#### Управление балансом
-
-```python
-def get_balance(self) -> float:
-    """Получение текущего баланса"""
-    
-def add_credits(self, amount: float, reason: str = "system") -> bool:
-    """
-    Добавление кредитов
-    
-    Args:
-        amount: Количество кредитов
-        reason: Причина добавления
-        
-    Returns:
-        success: Успешность операции
-    """
-    
-def remove_credits(self, amount: float, reason: str = "system") -> bool:
-    """
-    Удаление кредитов
-    
-    Args:
-        amount: Количество кредитов
-        reason: Причина удаления
-        
-    Returns:
-        success: Успешность операции
-    """
-    
-def transfer_credits(self, to_node: str, amount: float) -> bool:
-    """
-    Перевод кредитов другому узлу
-    
-    Args:
-        to_node: Идентификатор получателя
-        amount: Количество кредитов
-        
-    Returns:
-        success: Успешность перевода
-    """
-```
-
-#### История транзакций
-
-```python
-def get_transaction_history(self, limit: int = 100) -> List[CreditTransaction]:
-    """
-    Получение истории транзакций
-    
-    Args:
-        limit: Лимит записей
-        
-    Returns:
-        transactions: Список транзакций
-    """
-    
-def get_transaction_details(self, transaction_id: str) -> Optional[CreditTransaction]:
-    """
-    Получение деталей транзакции
-    
-    Args:
-        transaction_id: Идентификатор транзакции
-        
-    Returns:
-        transaction: Детали транзакции
-    """
-```
-
-#### Аналитика
-
-```python
-def get_credit_metrics(self) -> Dict[str, Any]:
-    """Получение метрик кредитов"""
-    
-def predict_credit_flow(self, days: int = 30) -> Dict[str, Any]:
-    """
-    Прогнозирование кредитного потока
-    
-    Args:
-        days: Количество дней для прогноза
-        
-    Returns:
-        prediction: Прогноз
-    """
-```
-
-### Пример использования
-
-```python
-from src.core.credits import Credits, CreditTransaction
-
-async def credits_example():
-    # Создание системы кредитов
-    credits = Credits(initial_balance=500.0, max_balance=10000.0)
-    
-    print(f"💰 Начальный баланс: {credits.get_balance()}")
-    
-    # Добавление кредитов
-    success = credits.add_credits(100.0, "task_reward")
-    if success:
-        print(f"✅ Добавлено 100 кредитов")
-    
-    # Перевод кредитов
-    success = credits.transfer_credits("node-002", 50.0)
-    if success:
-        print(f"✅ Переведено 50 кредитов node-002")
-    
-    # Получение баланса
-    balance = credits.get_balance()
-    print(f"💰 Текущий баланс: {balance}")
-    
-    # История транзакций
-    history = credits.get_transaction_history(limit=10)
-    print(f"📊 История транзакций: {len(history)} записей")
-    
-    for tx in history:
-        print(f"  - {tx.timestamp}: {tx.amount} ({tx.type})")
-    
-    # Метрики
-    metrics = credits.get_credit_metrics()
-    print(f"📈 Метрики: {metrics}")
-```
-
----
-
-## 🏆 Репутация (Reputation)
-
-Класс для управления репутацией узлов.
-
-### Конструктор
-
-```python
-class Reputation:
-    def __init__(
-        self,
-        initial_score: float = 0.5,
-        decay_rate: float = 0.01,
-        reward_multiplier: float = 1.2,
-        penalty_multiplier: float = 1.5
-    ):
-        """
-        Инициализация репутационной системы
-        
-        Args:
-            initial_score: Начальный балл
-            decay_rate: Скорость затухания
-            reward_multiplier: Множитель вознаграждений
-            penalty_multiplier: Множитель штрафов
-        """
-```
-
-### Основные методы
-
-#### Управление репутацией
-
-```python
-def get_score(self) -> float:
-    """Получение текущего балла репутации"""
-    
-def get_level(self) -> str:
-    """Получение уровня репутации"""
-    
-def add_positive_feedback(self, amount: float = 1.0) -> None:
-    """Добавление положительной обратной связи"""
-    
-def add_negative_feedback(self, amount: float = 1.0) -> None:
-    """Добавление отрицательной обратной связи"""
-    
-def update_score(self, success: bool, quality: float = 1.0) -> None:
-    """
-    Обновление балла репутации
-    
-    Args:
-        success: Успешность выполнения
-        quality: Качество выполнения (0.0 - 1.0)
-    """
-```
-
-#### Метрики репутации
-
-```python
-def get_metrics(self) -> Dict[str, float]:
-    """Получение метрик репутации"""
-    
-def calculate_success_rate(self) -> float:
-    """Расчет успешности выполнения"""
-    
-def calculate_quality_score(self) -> float:
-    """Расчет оценки качества"""
-    
-def calculate_consistency(self) -> float:
-    """Расчет последовательности"""
-```
-
-#### Аналитика
-
-```python
-def get_reputation_trend(self, days: int = 30) -> Dict[str, Any]:
-    """
-    Получение тренда репутации
-    
-    Args:
-        days: Количество дней
-        
-    Returns:
-        trend: Тренд репутации
-    """
-    
-def predict_reputation_score(self, actions: List[Dict[str, Any]]) -> float:
-    """
-    Прогнозирование балла репутации
-    
-    Args:
-        actions: Список ожидаемых действий
-        
-    Returns:
-        predicted_score: Прогнозируемый балл
-    """
-```
-
-### Пример использования
-
-```python
-from src.core.reputation import Reputation
-
-async def reputation_example():
-    # Создание репутационной системы
-    reputation = Reputation(
-        initial_score=0.5,
-        decay_rate=0.01,
-        reward_multiplier=1.2,
-        penalty_multiplier=1.5
-    )
-    
-    print(f"🏆 Начальный балл: {reputation.get_score()}")
-    print(f"📊 Уровень: {reputation.get_level()}")
-    
-    # Успешное выполнение задачи
-    reputation.update_score(success=True, quality=0.9)
-    print(f"✅ После успешного выполнения: {reputation.get_score()}")
-    
-    # Неудачное выполнение задачи
-    reputation.update_score(success=False, quality=0.3)
-    print(f"❌ После неудачного выполнения: {reputation.get_score()}")
-    
-    # Положительная обратная связь
-    reputation.add_positive_feedback(0.5)
-    print(f"👍 После положительной обратной связи: {reputation.get_score()}")
-    
-    # Метрики
-    metrics = reputation.get_metrics()
-    print(f"📈 Метрики: {metrics}")
-    
-    # Тренд
-    trend = reputation.get_reputation_trend(days=7)
-    print(f"📊 Тренд за 7 дней: {trend}")
-```
-
----
-
-## 🔒 Sandbox слой
-
-`src/sandbox/execution.py` предоставляет унифицированный API для изоляции пользовательского кода.
-
-### Основные сущности
-
-- `SandboxType` — enum (`process_isolation`, `wasm`, `container`).
-- `SandboxLimits` — лимиты CPU/памяти/времени/файлов + optional env.
-- `CodeBundle` — описание исполняемого пакета (entrypoint, дополнительные файлы, stdin, аргументы).
-- `SandboxResult` — stdout/stderr/exit_code/runtime + флаги `timed_out`, `killed`, `usage`.
-- `SandboxExecutor` — абстрактный базовый класс с методами `execute(job, code_bundle, limits)` и `run_self_test()`.
-- `SandboxExecutorFactory.create()` — точка входа для получения конкретной реализации (сейчас `ProcessSandboxExecutor` + заглушки WASM/Container).
-
-### Пример использования
-
-```python
-from sandbox.execution import (
-    CodeBundle,
-    SandboxExecutorFactory,
-    SandboxLimits,
-    SandboxType,
-)
-
-async def sandbox_example():
-    executor = SandboxExecutorFactory.create(
-        SandboxType.PROCESS_ISOLATION,
-        SandboxLimits(cpu_time_seconds=10, memory_bytes=128 * 1024 * 1024),
-    )
-
-    bundle = CodeBundle(
-        entrypoint="script.py",
-        source="import json; data=json.load(open('input.json')); print(sum(data['values']))",
-        files={"input.json": '{"values": [1, 2, 3, 4]}'},
-    )
-
-    result = await executor.execute(job=None, code_bundle=bundle, limits=None)
-    if result.success:
-        print(f"📊 STDOUT: {result.stdout.strip()}")
-    else:
-        print(f"❌ Ошибка: {result.stderr}")
-
-    await executor.close()
-```
-
-`ProcessSandboxExecutor` ограничивает ресурсы через `resource.setrlimit` и автоматически удаляет временную директорию. `run_self_test()` доступен для быстрой проверки окружения и вызывается `ComputeNetwork` на старте.
-
----
-
-## 💡 Примеры использования
-
-### Пример 1: Базовое использование сети
-
-```python
-import asyncio
-from src.main import ComputeNetwork
-from src.core.task import Task, TaskType, TaskPriority
-
-async def basic_example():
-    # Создание сети
-    network = ComputeNetwork(host="127.0.0.1", port=5557)
-    
-    try:
-        # Запуск
-        await network.start()
-        await asyncio.sleep(2)
-        
-        print(f"🆔 Узел запущен: {network.node.node_id}")
-        
-        # Создание простой задачи
-        task = Task.create_range_reduce(
-            owner_id=network.node.node_id,
-            start=1,
-            end=1000,
-            operation="sum",
-            requirements={
-                "cpu_percent": 50.0,
-                "ram_gb": 0.5,
-                "timeout_seconds": 30
-            },
-            config={
-                "max_price": 0.1,
-                "priority": TaskPriority.NORMAL.value
-            }
-        )
-        
-        # Подача задачи
-        task_id = await network.submit_task(task.to_dict())
-        print(f"📝 Задача создана: {task_id}")
-        
-        # Мониторинг выполнения
-        while True:
-            status = await network.get_task_status(task_id)
-            print(f"📊 Статус: {status['status']}")
-            
-            if status['status'] == 'completed':
-                result = await network.get_task_result(task_id)
-                print(f"🎉 Результат: {result}")
-                break
-            elif status['status'] == 'failed':
-                print(f"❌ Задача не выполнена")
-                break
-                
-            await asyncio.sleep(1)
-            
-    finally:
-        await network.stop()
-
-asyncio.run(basic_example())
-```
-
-### Пример 2: Пакетная обработка данных
-
-```python
-import asyncio
-import numpy as np
-from src.main import ComputeNetwork
-from src.core.task import Task, TaskType, TaskPriority
-
-async def batch_processing_example():
-    # Создание сети
-    network = ComputeNetwork(host="127.0.0.1", port=5558)
-    
-    try:
-        # Запуск
-        await network.start()
-        await asyncio.sleep(2)
-        
-        # Генерация тестовых данных
-        data = np.random.rand(10000, 100)  # 10,000 векторов по 100 элементов
-        
-        # Разбиение на пакеты
-        batch_size = 1000
-        batches = [data[i:i+batch_size] for i in range(0, len(data), batch_size)]
-        
-        tasks = []
-        
-        # Создание задач для каждого пакета
-        for i, batch in enumerate(batches):
-            task = Task.create_map(
-                owner_id=network.node.node_id,
-                data=batch.tolist(),
-                operation="mean",
-                requirements={
-                    "cpu_percent": 75.0,
-                    "ram_gb": 2.0,
-                    "timeout_seconds": 60
-                },
-                config={
-                    "max_price": 0.2,
-                    "priority": TaskPriority.NORMAL.value,
-                    "batch_id": i
-                }
-            )
-            
-            task_id = await network.submit_task(task.to_dict())
-            tasks.append(task_id)
-            print(f"📦 Задача {i+1}/{len(batches)}: {task_id}")
-        
-        # Ожидание завершения всех задач
-        results = []
-        for task_id in tasks:
-            while True:
-                status = await network.get_task_status(task_id)
-                if status['status'] == 'completed':
-                    result = await network.get_task_result(task_id)
-                    results.append(result)
-                    break
-                await asyncio.sleep(1)
-        
-        # Агрегация результатов
-        final_result = np.mean(results, axis=0)
-        print(f"🎯 Финальный результат: {final_result}")
-        
-    finally:
-        await network.stop()
-
-asyncio.run(batch_processing_example())
-```
-
-### Пример 3: ML инференс
-
-```python
-import asyncio
-from src.main import ComputeNetwork
-from src.core.task import Task, TaskType, TaskPriority
-
-async def ml_inference_example():
-    # Создание сети
-    network = ComputeNetwork(host="127.0.0.1", port=5559)
-    
-    try:
-        # Запуск
-        await network.start()
-        await asyncio.sleep(2)
-        
-        # Путь к модели
-        model_path = "models/resnet50.h5"
-        
-        # Тестовые данные
-        input_data = {
-            "image_data": "base64_encoded_image",
-            "preprocessing": {
-                "normalize": True,
-                "resize": (224, 224)
-            }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 24px;
         }
-        
-        # Создание задачи ML инференса
-        task = Task.create_ml_inference(
-            owner_id=network.node.node_id,
-            model_path=model_path,
-            input_data=input_data,
-            requirements={
-                "cpu_percent": 30.0,
-                "ram_gb": 4.0,
-                "gpu_percent": 80.0,
-                "timeout_seconds": 120
-            },
-            config={
-                "max_price": 1.0,
-                "priority": TaskPriority.HIGH.value,
-                "return_probabilities": True
-            }
-        )
-        
-        # Подача задачи
-        task_id = await network.submit_task(task.to_dict())
-        print(f"🤖 ML задача создана: {task_id}")
-        
-        # Ожидание результата
-        while True:
-            status = await network.get_task_status(task_id)
-            print(f"📊 Статус: {status['status']}")
-            
-            if status['status'] == 'completed':
-                result = await network.get_task_result(task_id)
-                print(f"🎯 Предсказание: {result['predictions']}")
-                print(f"📈 Вероятности: {result['probabilities']}")
-                break
-            elif status['status'] == 'failed':
-                print(f"❌ ML инференс не выполнен")
-                break
-                
-            await asyncio.sleep(2)
-            
-    finally:
-        await network.stop()
 
-asyncio.run(ml_inference_example())
-```
+        header {
+            background-color: rgba(10, 10, 10, 0.8);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border-color);
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+        }
 
-### Пример 4: Мониторинг и статистика
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 0;
+        }
 
-```python
-import asyncio
-from src.main import ComputeNetwork
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            text-decoration: none;
+            color: var(--text-primary);
+            letter-spacing: -0.5px;
+        }
 
-async def monitoring_example():
-    # Создание сети
-    network = ComputeNetwork(host="127.0.0.1", port=5560)
-    
-    try:
-        # Запуск
-        await network.start()
-        await asyncio.sleep(2)
-        
-        # Мониторинг в реальном времени
-        while True:
-            try:
-                # Метрики сети
-                network_metrics = await network.get_network_metrics()
-                print(f"🌐 Узлов в сети: {network_metrics['total_nodes']}")
-                print(f"📊 Активных задач: {network_metrics['active_tasks']}")
-                print(f"💾 Использование CPU: {network_metrics['cpu_usage']:.1f}%")
-                print(f"🧠 Использование RAM: {network_metrics['ram_usage']:.1f}%")
-                
-                # Метрики задач
-                task_metrics = await network.get_task_metrics()
-                print(f"⏱️  Среднее время выполнения: {task_metrics['avg_execution_time']:.2f}s")
-                print(f"📈 Успешность: {task_metrics['success_rate']:.1f}%")
-                print(f"💰 Средняя стоимость: {task_metrics['avg_cost']:.4f}")
-                
-                # Метрики кредитов
-                credit_metrics = await network.get_credit_metrics()
-                print(f"💳 Баланс: {credit_metrics['balance']:.2f}")
-                print(f"📊 Транзакций: {credit_metrics['total_transactions']}")
-                
-                print("-" * 50)
-                await asyncio.sleep(10)
-                
-            except KeyboardInterrupt:
-                break
-                
-    finally:
-        await network.stop()
+        .logo::after {
+            content: '';
+            display: block;
+            width: 0;
+            height: 2px;
+            background: var(--gradient-primary);
+            transition: width 0.3s ease;
+        }
 
-asyncio.run(monitoring_example())
-```
+        .logo:hover::after {
+            width: 100%;
+        }
 
----
+        nav ul {
+            list-style: none;
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+        }
 
-## ⚠️ Обработка ошибок
+        nav a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            position: relative;
+        }
 
-### Типы исключений
+        nav a::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 0;
+            width: 0;
+            height: 1px;
+            background: var(--accent-primary);
+            transition: width 0.3s ease;
+        }
 
-```python
-# Базовые исключения
-class NetworkError(Exception):
-    """Ошибка сети"""
-    
-class TaskError(Exception):
-    """Ошибка задачи"""
-    
-class NodeError(Exception):
-    """Ошибка узла"""
-    
-class CreditError(Exception):
-    """Ошибка кредитов"""
-    
-class SandboxError(Exception):
-    """Ошибка sandbox"""
-```
+        nav a:hover {
+            color: var(--text-primary);
+        }
 
-### Примеры обработки ошибок
+        nav a:hover::after {
+            width: 100%;
+        }
 
-```python
-import asyncio
-from src.main import ComputeNetwork
-from src.core.task import Task, TaskType
+        main {
+            padding-top: 80px;
+            min-height: 100vh;
+        }
 
-async def error_handling_example():
-    network = ComputeNetwork(host="127.0.0.1", port=5561)
-    
-    try:
-        await network.start()
-        
-        # Попытка создать некорректную задачу
-        try:
-            task_data = {
-                "task_type": "invalid_type",
-                "owner_id": "user-001",
-                "requirements": {},
-                "config": {}
+        .hero {
+            text-align: center;
+            padding: 4rem 0;
+            position: relative;
+        }
+
+        .hero h1 {
+            font-size: clamp(2rem, 4vw, 3rem);
+            margin-bottom: 1rem;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero .subtitle {
+            font-size: clamp(1rem, 2vw, 1.2rem);
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .content {
+            background: var(--bg-secondary);
+            padding: 3rem;
+            border-radius: 16px;
+            border: 1px solid var(--border-color);
+            margin: 2rem 0;
+        }
+
+        .content h2 {
+            color: var(--text-primary);
+            margin-bottom: 1rem;
+            font-size: 2rem;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .content h3 {
+            color: var(--text-primary);
+            margin: 2rem 0 1rem 0;
+            font-size: 1.5rem;
+        }
+
+        .content h4 {
+            color: var(--text-primary);
+            margin: 1.5rem 0 0.75rem 0;
+            font-size: 1.2rem;
+        }
+
+        .content p {
+            color: var(--text-secondary);
+            margin-bottom: 1rem;
+            line-height: 1.8;
+        }
+
+        .content ul {
+            color: var(--text-secondary);
+            margin-left: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        .content li {
+            margin-bottom: 0.5rem;
+        }
+
+        .content pre {
+            background: var(--bg-tertiary);
+            padding: 1.5rem;
+            border-radius: 8px;
+            overflow-x: auto;
+            border: 1px solid var(--border-color);
+            margin: 1rem 0;
+        }
+
+        .content code {
+            background: var(--bg-tertiary);
+            padding: 0.2rem 0.4rem;
+            border-radius: 4px;
+            color: var(--accent-primary);
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 0.9rem;
+        }
+
+        .content .highlight {
+            background: var(--bg-tertiary);
+            padding: 1rem;
+            border-radius: 8px;
+            border-left: 4px solid var(--accent-primary);
+            margin: 1rem 0;
+        }
+
+        .content .highlight p {
+            color: var(--text-primary);
+            margin-bottom: 0;
+        }
+
+        .api-section {
+            background: var(--bg-tertiary);
+            padding: 2rem;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            margin: 2rem 0;
+        }
+
+        .api-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: var(--gradient-primary);
+        }
+
+        .method-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            margin-right: 0.5rem;
+        }
+
+        .method-get {
+            background: rgba(0, 212, 255, 0.1);
+            color: var(--accent-primary);
+            border: 1px solid var(--accent-primary);
+        }
+
+        .method-post {
+            background: rgba(0, 255, 128, 0.1);
+            color: #00ff80;
+            border: 1px solid #00ff80;
+        }
+
+        .method-put {
+            background: rgba(255, 193, 7, 0.1);
+            color: #ffc107;
+            border: 1px solid #ffc107;
+        }
+
+        .method-delete {
+            background: rgba(220, 53, 69, 0.1);
+            color: #dc3545;
+            border: 1px solid #dc3545;
+        }
+
+        .endpoint {
+            color: var(--accent-primary);
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 1rem;
+        }
+
+        .parameter-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0;
+        }
+
+        .parameter-table th,
+        .parameter-table td {
+            padding: 0.75rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .parameter-table th {
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+
+        .parameter-table td {
+            color: var(--text-secondary);
+        }
+
+        .parameter-table code {
+            background: var(--bg-secondary);
+            padding: 0.2rem 0.4rem;
+            border-radius: 4px;
+            color: var(--accent-primary);
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 0.9rem;
+        }
+
+        .response-example {
+            background: var(--bg-secondary);
+            padding: 1rem;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            margin: 1rem 0;
+        }
+
+        .response-example h4 {
+            color: var(--accent-primary);
+            margin-bottom: 0.5rem;
+            font-size: 1rem;
+        }
+
+        .response-example pre {
+            background: var(--bg-tertiary);
+            padding: 1rem;
+            border-radius: 4px;
+            margin: 0;
+            font-size: 0.9rem;
+        }
+
+        .toc {
+            background: var(--bg-tertiary);
+            padding: 2rem;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            margin: 2rem 0;
+            position: sticky;
+            top: 100px;
+        }
+
+        .toc h3 {
+            color: var(--text-primary);
+            margin-bottom: 1rem;
+            font-size: 1.3rem;
+        }
+
+        .toc ul {
+            list-style: none;
+            margin-left: 0;
+        }
+
+        .toc li {
+            margin-bottom: 0.75rem;
+        }
+
+        .toc a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: color 0.3s ease;
+            display: flex;
+            align-items: center;
+        }
+
+        .toc a:hover {
+            color: var(--accent-primary);
+        }
+
+        .toc a i {
+            margin-right: 0.5rem;
+            width: 1rem;
+        }
+
+        .nav-links {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 3rem;
+            padding-top: 2rem;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .nav-links a {
+            color: var(--accent-primary);
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .nav-links a:hover {
+            color: var(--accent-secondary);
+        }
+
+        footer {
+            background: var(--bg-secondary);
+            border-top: 1px solid var(--border-color);
+            padding: 3rem 0 2rem;
+            margin-top: 4rem;
+        }
+
+        .footer-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 2rem;
+        }
+
+        .footer-content p {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .social-links {
+            display: flex;
+            gap: 2rem;
+        }
+
+        .social-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .social-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 0;
+            height: 1px;
+            background: var(--accent-primary);
+            transition: width 0.3s ease;
+        }
+
+        .social-links a:hover {
+            color: var(--accent-primary);
+        }
+
+        .social-links a:hover::after {
+            width: 100%;
+        }
+
+        @media (max-width: 768px) {
+            nav ul {
+                gap: 1rem;
             }
             
-            task_id = await network.submit_task(task_data)
+            .content {
+                padding: 2rem 1rem;
+            }
             
-        except TaskError as e:
-            print(f"❌ Ошибка задачи: {e}")
+            .api-section {
+                padding: 1.5rem;
+            }
             
-        # Попытка получить статус несуществующей задачи
-        try:
-            status = await network.get_task_status("nonexistent_task_id")
+            .toc {
+                position: static;
+                margin: 1rem 0;
+            }
             
-        except TaskError as e:
-            print(f"❌ Задача не найдена: {e}")
+            .nav-links {
+                flex-direction: column;
+                gap: 1rem;
+            }
             
-        # Попытка подключиться к недоступному узлу
-        try:
-            success = await network.connect_to_node("nonexistent_node")
-            
-        except NetworkError as e:
-            print(f"❌ Ошибка сети: {e}")
-            
-        # Обработка ошибок кредитов
-        try:
-            # Попытка перевода недостаточных кредитов
-            success = network.credits.transfer_credits("node-002", 1000.0)
-            
-        except CreditError as e:
-            print(f"❌ Ошибка кредитов: {e}")
-            
-    except Exception as e:
-        print(f"💥 Неожиданная ошибка: {e}")
-        
-    finally:
-        await network.stop()
-
-asyncio.run(error_handling_example())
-```
-
-### Логирование ошибок
-
-```python
-import logging
-from src.main import ComputeNetwork
-
-# Настройка логирования
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
-
-logger = logging.getLogger(__name__)
-
-async def logging_example():
-    network = ComputeNetwork(host="127.0.0.1", port=5562)
-    
-    try:
-        await network.start()
-        
-        # Логирование ошибок
-        try:
-            # Операция, которая может вызвать ошибку
-            result = await network.get_task_status("invalid_id")
-            
-        except Exception as e:
-            logger.error(f"Ошибка при получении статуса: {e}", exc_info=True)
-            logger.warning("Это предупреждение о возможной проблеме")
-            logger.info("Информационное сообщение")
-            
-    finally:
-        await network.stop()
-
-asyncio.run(logging_example())
-```
-
----
-
-## 📡 WebSocket API
-
-### Подключение к WebSocket
-
-```python
-import asyncio
-import websockets
-import json
-
-async def websocket_example():
-    uri = "ws://localhost:5557/ws"
-    
-    async with websockets.connect(uri) as websocket:
-        # Подписка на обновления задач
-        subscribe_message = {
-            "type": "subscribe",
-            "event": "task_updates"
+            .footer-content {
+                flex-direction: column;
+                text-align: center;
+            }
         }
-        
-        await websocket.send(json.dumps(subscribe_message))
-        
-        # Получение обновлений
-        async for message in websocket:
-            data = json.loads(message)
-            
-            if data['type'] == 'task_update':
-                task_id = data['task_id']
-                status = data['status']
-                print(f"📊 Обновление задачи {task_id}: {status}")
-                
-            elif data['type'] == 'network_update':
-                metrics = data['metrics']
-                print(f"🌐 Обновление сети: {metrics}")
-                
-            elif data['type'] == 'error':
-                error = data['error']
-                print(f"❌ Ошибка: {error}")
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <a href="/" class="logo">P2PNet</a>
+                <nav>
+                    <ul>
+                        <li><a href="/">Главная</a></li>
+                        <li><a href="/p2p/docs/">Документация</a></li>
+                        <li><a href="https://github.com/ari3lYT/p2pnet" target="_blank">GitHub</a></li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </header>
 
-asyncio.run(websocket_example())
-```
+    <main>
+        <div class="container">
+            <section class="hero">
+                <h1>API Ссылка P2PNet</h1>
+                <p class="subtitle">Полное описание API для интеграции с децентрализованной сетью вычислений</p>
+            </section>
 
-### WebSocket события
+            <div class="content">
+                <div style="display: grid; grid-template-columns: 300px 1fr; gap: 2rem;">
+                    <div class="toc">
+                        <h3>Содержание</h3>
+                        <ul>
+                            <li><a href="#overview"><i class="fas fa-info-circle"></i> Обзор</a></li>
+                            <li><a href="#authentication"><i class="fas fa-key"></i> Аутентификация</a></li>
+                            <li><a href="#nodes"><i class="fas fa-network-wired"></i> Управление узлами</a></li>
+                            <li><a href="#tasks"><i class="fas fa-tasks"></i> Управление задачами</a></li>
+                            <li><a href="#monitoring"><i class="fas fa-chart-line"></i> Мониторинг</a></li>
+                            <li><a href="#payments"><i class="fas fa-coins"></i> Платежи</a></li>
+                            <li><a href="#errors"><i class="fas fa-exclamation-triangle"></i> Обработка ошибок</a></li>
+                        </ul>
+                    </div>
 
-```python
-# События задач
-{
-    "type": "task_update",
-    "task_id": "task_001",
-    "status": "running",
-    "progress": 0.5,
-    "timestamp": 1234567890.123
-}
+                    <div>
+                        <h2 id="overview">Обзор API</h2>
+                        <p>P2PNet предоставляет RESTful API для взаимодействия с децентрализованной сетью вычислений. API позволяет:</p>
+                        <ul>
+                            <li>Регистрировать и управлять узлами сети</li>
+                            <li>Публиковать и выполнять вычислительные задачи</li>
+                            <li>Мониторить состояние сети и узлов</li>
+                            <li>Обрабатывать платежи и транзакции</li>
+                            <li>Получать статистику и метрики</li>
+                        </ul>
 
-# События сети
-{
-    "type": "network_update",
-    "metrics": {
-        "total_nodes": 10,
-        "active_tasks": 5,
-        "cpu_usage": 45.2,
-        "ram_usage": 67.8
-    },
-    "timestamp": 1234567890.123
-}
+                        <div class="highlight">
+                            <p><i class="fas fa-globe" style="color: var(--accent-primary); margin-right: 0.5rem;"></i> Базовый URL: <code>http://localhost:8000</code> (замените на адрес вашего узла)</p>
+                        </div>
 
-# События узлов
-{
-    "type": "node_update",
-    "node_id": "node_001",
-    "status": "online",
-    "capabilities": {
-        "cpu_score": 8.0,
-        "ram_gb": 16.0
-    },
-    "timestamp": 1234567890.123
-}
+                        <h2 id="authentication">Аутентификация</h2>
+                        <p>Для большинства операций требуется аутентификация с использованием API ключа:</p>
 
-# Ошибки
-{
-    "type": "error",
-    "error": "Task execution failed",
-    "details": {
-        "task_id": "task_001",
-        "error_code": "EXECUTION_FAILED",
-        "error_message": "Memory limit exceeded"
-    },
-    "timestamp": 1234567890.123
-}
-```
+                        <div class="api-section">
+                            <h3><span class="method-badge">post</span>Получение API ключа</h3>
+                            <p class="endpoint">POST /api/auth/key</p>
+                            
+                            <h4>Параметры запроса</h4>
+                            <table class="parameter-table">
+                                <thead>
+                                    <tr>
+                                        <th>Параметр</th>
+                                        <th>Тип</th>
+                                        <th>Описание</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><code>node_id</code></td>
+                                        <td>string</td>
+                                        <td>Уникальный идентификатор узла</td>
+                                    </tr>
+                                    <tr>
+                                        <td><code>public_key</code></td>
+                                        <td>string</td>
+                                        <td>Публичный ключ для шифрования</td>
+                                    </tr>
+                                </tbody>
+                            </table>
 
----
+                            <h4>Ответ</h4>
+                            <div class="response-example">
+                                <h4>Успешный ответ (200 OK)</h4>
+                                <pre><code>{
+  "api_key": "your_api_key_here",
+  "expires_at": "2025-12-31T23:59:59Z",
+  "permissions": ["read", "write", "compute"]
+}</code></pre>
+                            </div>
+                        </div>
 
-## 🎯 Заключение
+                        <h2 id="nodes">Управление узлами</h2>
 
-API децентрализованной P2P вычислительной сети предоставляет мощный и гибкий интерфейс для:
+                        <div class="api-section">
+                            <h3><span class="method-badge">post</span>Регистрация узла</h3>
+                            <p class="endpoint">POST /api/nodes</p>
+                            
+                            <h4>Параметры запроса</h4>
+                            <table class="parameter-table">
+                                <thead>
+                                    <tr>
+                                        <th>Параметр</th>
+                                        <th>Тип</th>
+                                        <th>Описание</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><code>node_id</code></td>
+                                        <td>string</td>
+                                        <td>Уникальный идентификатор узла</td>
+                                    </tr>
+                                    <tr>
+                                        <td><code>capabilities</code></td>
+                                        <td>object</td>
+                                        <td>Возможности узла (CPU, RAM, GPU)</td>
+                                    </tr>
+                                    <tr>
+                                        <td><code>location</code></td>
+                                        <td>object</td>
+                                        <td>Географическое положение</td>
+                                    </tr>
+                                    <tr>
+                                        <td><code>api_key</code></td>
+                                        <td>string</td>
+                                        <td>API ключ для аутентификации</td>
+                                    </tr>
+                                </tbody>
+                            </table>
 
-- ✅ **Управления сетью** - запуск, остановка, мониторинг
-- ✅ **Работы с задачами** - создание, мониторинг, получение результатов
-- ✅ **Управления ресурсами** - compute-кредиты, репутация
-- ✅ **Безопасного выполнения** - sandbox изоляция
-- ✅ **Мониторинга в реальном времени** - WebSocket API
+                            <h4>Ответ</h4>
+                            <div class="response-example">
+                                <h4>Успешный ответ (201 Created)</h4>
+                                <pre><code>{
+  "node_id": "node-123",
+  "status": "registered",
+  "message": "Node successfully registered",
+  "endpoint": "ws://node-123:8000"
+}</code></pre>
+                            </div>
+                        </div>
 
-API полностью типизирован, асинхронен и предоставляет comprehensive error handling для надежной работы.
+                        <div class="api-section">
+                            <h3><span class="method-badge">get</span>Получение информации об узле</h3>
+                            <p class="endpoint">GET /api/nodes/{node_id}</p>
+                            
+                            <h4>Параметры пути</h4>
+                            <table class="parameter-table">
+                                <thead>
+                                    <tr>
+                                        <th>Параметр</th>
+                                        <th>Тип</th>
+                                        <th>Описание</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><code>node_id</code></td>
+                                        <td>string</td>
+                                        <td>Идентификатор узла</td>
+                                    </tr>
+                                </tbody>
+                            </table>
 
-🚀 **API готов к использованию в ваших проектах!**
+                            <h4>Ответ</h4>
+                            <div class="response-example">
+                                <h4>Успешный ответ (200 OK)</h4>
+                                <pre><code>{
+  "node_id": "node-123",
+  "status": "active",
+  "capabilities": {
+    "cpu": 8,
+    "memory": "16GB",
+    "gpu": "RTX 3080",
+    "storage": "500GB SSD"
+  },
+  "location": {
+    "country": "RU",
+    "city": "Moscow"
+  },
+  "reputation": 95,
+  "uptime": 99.9,
+  "last_seen": "2025-01-01T10:00:00Z"
+}</code></pre>
+                            </div>
+                        </div>
+
+                        <h2 id="tasks">Управление задачами</h2>
+
+                        <div class="api-section">
+                            <h3><span class="method-badge">post</span>Публикация задачи</h3>
+                            <p class="endpoint">POST /api/tasks</p>
+                            
+                            <h4>Параметры запроса</h4>
+                            <table class="parameter-table">
+                                <thead>
+                                    <tr>
+                                        <th>Параметр</th>
+                                        <th>Тип</th>
+                                        <th>Описание</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><code>type</code></td>
+                                        <td>string</td>
+                                        <td>Тип задачи (computation, ml, etc.)</td>
+                                    </tr>
+                                    <tr>
+                                        <td><code>command</code></td>
+                                        <td>string</td>
+                                        <td>Команда для выполнения</td>
+                                    </tr>
+                                    <tr>
+                                        <td><code>requirements</code></td>
+                                        <td>object</td>
+                                        <td>Требования к ресурсам</td>
+                                    </tr>
+                                    <tr>
+                                        <td><code>timeout</code></td>
+                                        <td>integer</td>
+                                        <td>Таймаут в секундах</td>
+                                    </tr>
+                                    <tr>
+                                        <td><code>budget</code></td>
+                                        <td>float</td>
+                                        <td>Бюджет задачи в криптовалюте</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+
+                            <h4>Ответ</h4>
+                            <div class="response-example">
+                                <h4>Успешный ответ (202 Accepted)</h4>
+                                <pre><code>{
+  "task_id": "task-456",
+  "status": "pending",
+  "estimated_cost": 0.001,
+  "estimated_time": 30,
+  "message": "Task submitted successfully"
+}</code></pre>
+                            </div>
+                        </div>
+
+                        <div class="api-section">
+                            <h3><span class="method-badge">get</span>Получение статуса задачи</h3>
+                            <p class="endpoint">GET /api/tasks/{task_id}/status</p>
+                            
+                            <h4>Параметры пути</h4>
+                            <table class="parameter-table">
+                                <thead>
+                                    <tr>
+                                        <th>Параметр</th>
+                                        <th>Тип</th>
+                                        <th>Описание</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><code>task_id</code></td>
+                                        <td>string</td>
+                                        <td>Идентификатор задачи</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+
+                            <h4>Ответ</h4>
+                            <div class="response-example">
+                                <h4>Успешный ответ (200 OK)</h4>
+                                <pre><code>{
+  "task_id": "task-456",
+  "status": "running",
+  "progress": 65,
+  "assigned_nodes": ["node-123", "node-456"],
+  "started_at": "2025-01-01T10:00:00Z",
+  "estimated_completion": "2025-01-01T10:00:30Z"
+}</code></pre>
+                            </div>
+                        </div>
+
+                        <div class="api-section">
+                            <h3><span class="method-badge">get</span>Получение результата задачи</h3>
+                            <p class="endpoint">GET /api/tasks/{task_id}/result</p>
+                            
+                            <h4>Параметры пути</h4>
+                            <table class="parameter-table">
+                                <thead>
+                                    <tr>
+                                        <th>Параметр</th>
+                                        <th>Тип</th>
+                                        <th>Описание</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><code>task_id</code></td>
+                                        <td>string</td>
+                                        <td>Идентификатор задачи</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+
+                            <h4>Ответ</h4>
+                            <div class="response-example">
+                                <h4>Успешный ответ (200 OK)</h4>
+                                <pre><code>{
+  "task_id": "task-456",
+  "status": "completed",
+  "result": {
+    "output": "Calculation completed successfully",
+    "data": {
+      "value": 42,
+      "timestamp": "2025-01-01T10:00:30Z"
+    }
+  },
+  "cost": 0.001,
+  "execution_time": 28.5,
+  "used_resources": {
+    "cpu": 2,
+    "memory": "1GB",
+    "gpu": false
+  }
+}</code></pre>
+                            </div>
+                        </div>
+
+                        <h2 id="monitoring">Мониторинг</h2>
+
+                        <div class="api-section">
+                            <h3><span class="method-badge">get</span>Получение статистики сети</h3>
+                            <p class="endpoint">GET /api/stats/network</p>
+                            
+                            <h4>Ответ</h4>
+                            <div class="response-example">
+                                <h4>Успешный ответ (200 OK)</h4>
+                                <pre><code>{
+  "total_nodes": 150,
+  "active_nodes": 142,
+  "total_tasks": 1000,
+  "active_tasks": 25,
+  "average_uptime": 99.5,
+  "total_computing_power": {
+    "cpu": 1200,
+    "memory": "2TB",
+    "gpu": 45
+  },
+  "network_load": 0.65,
+  "last_updated": "2025-01-01T10:00:00Z"
+}</code></pre>
+                            </div>
+                        </div>
+
+                        <div class="api-section">
+                            <h3><span class="method-badge">get</span>Получение метрик узла</h3>
+                            <p class="endpoint">GET /api/nodes/{node_id}/metrics</p>
+                            
+                            <h4>Параметры пути</h4>
+                            <table class="parameter-table">
+                                <thead>
+                                    <tr>
+                                        <th>Параметр</th>
+                                        <th>Тип</th>
+                                        <th>Описание</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><code>node_id</code></td>
+                                        <td>string</td>
+                                        <td>Идентификатор узла</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+
+                            <h4>Ответ</h4>
+                            <div class="response-example">
+                                <h4>Успешный ответ (200 OK)</h4>
+                                <pre><code>{
+  "node_id": "node-123",
+  "metrics": {
+    "cpu_usage": 45.2,
+    "memory_usage": "8.2GB/16GB",
+    "disk_usage": "120GB/500GB",
+    "network_in": 1.2,
+    "network_out": 0.8,
+    "temperature": 65,
+    "uptime": 99.9
+  },
+  "timestamp": "2025-01-01T10:00:00Z"
+}</code></pre>
+                            </div>
+                        </div>
+
+                        <h2 id="payments">Платежи</h2>
+
+                        <div class="api-section">
+                            <h3><span class="method-badge">post</span>Инициализация платежа</h3>
+                            <p class="endpoint">POST /api/payments/initiate</p>
+                            
+                            <h4>Параметры запроса</h4>
+                            <table class="parameter-table">
+                                <thead>
+                                    <tr>
+                                        <th>Параметр</th>
+                                        <th>Тип</th>
+                                        <th>Описание</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><code>task_id</code></td>
+                                        <td>string</td>
+                                        <td>Идентификатор задачи</td>
+                                    </tr>
+                                    <tr>
+                                        <td><code>amount</code></td>
+                                        <td>float</td>
+                                        <td>Сумма платежа</td>
+                                    </tr>
+                                    <tr>
+                                        <td><code>currency</code></td>
+                                        <td>string</td>
+                                        <td>Криптовалюта (BTC, ETH, etc.)</td>
+                                    </tr>
+                                    <tr>
+                                        <td><code>recipient_address</code></td>
+                                        <td>string</td>
+                                        <td>Адрес получателя</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+
+                            <h4>Ответ</h4>
+                            <div class="response-example">
+                                <h4>Успешный ответ (200 OK)</h4>
+                                <pre><code>{
+  "payment_id": "payment-789",
+  "status": "pending",
+  "amount": 0.001,
+  "currency": "ETH",
+  "transaction_hash": "0x123...abc",
+  "estimated_fee": 0.0001,
+  "total_amount": 0.0011
+}</code></pre>
+                            </div>
+                        </div>
+
+                        <h2 id="errors">Обработка ошибок</h2>
+                        <p>API возвращает стандартные HTTP коды статуса и сообщения об ошибках в формате JSON:</p>
+
+                        <div class="api-section">
+                            <h4>Коды ошибок</h4>
+                            <table class="parameter-table">
+                                <thead>
+                                    <tr>
+                                        <th>Код</th>
+                                        <th>Описание</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>400</td>
+                                        <td>Неверный запрос</td>
+                                    </tr>
+                                    <tr>
+                                        <td>401</td>
+                                        <td>Неавторизован</td>
+                                    </tr>
+                                    <tr>
+                                        <td>403</td>
+                                        <td>Доступ запрещен</td>
+                                    </tr>
+                                    <tr>
+                                        <td>404</td>
+                                        <td>Не найдено</td>
+                                    </tr>
+                                    <tr>
+                                        <td>429</td>
+                                        <td>Слишком много запросов</td>
+                                    </tr>
+                                    <tr>
+                                        <td>500</td>
+                                        <td>Внутренняя ошибка сервера</td>
+                                    </tr>
+                                    <tr>
+                                        <td>503</td>
+                                        <td>Сервис недоступен</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+
+                            <h4>Формат ошибки</h4>
+                            <div class="response-example">
+                                <h4>Пример ответа об ошибке</h4>
+                                <pre><code>{
+  "error": {
+    "code": "INVALID_REQUEST",
+    "message": "Invalid task requirements",
+    "details": "Memory requirement must be specified"
+  },
+  "request_id": "req-123"
+}</code></pre>
+                            </div>
+                        </div>
+
+                        <div class="highlight">
+                            <p><i class="fas fa-code" style="color: var(--accent-primary); margin-right: 0.5rem;"></i> Полные примеры использования API доступны в разделе <a href="/p2p/docs/examples.html">"Примеры использования"</a>.</p>
+                        </div>
+
+                        <div class="nav-links">
+                            <a href="/p2p/docs/examples.html"><i class="fas fa-arrow-left"></i> Примеры использования</a>
+                            <a href="/p2p/docs/deployment.html"><i class="fas fa-server"></i> Развертывание <i class="fas fa-arrow-right"></i></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <p>&copy; 2025 P2PNet. Проект с открытым исходным кодом.</p>
+                <div class="social-links">
+                    <a href="https://github.com/ari3lYT/p2pnet" target="_blank">
+                        <i class="fab fa-github"></i> GitHub
+                    </a>
+                    <a href="https://t.me/gweles" target="_blank">
+                        <i class="fab fa-telegram"></i> Telegram
+                    </a>
+                </div>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>
