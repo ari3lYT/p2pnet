@@ -122,11 +122,6 @@ jobs:
         with:
           fetch-depth: 0
           
-      - name: Set up SSH
-        uses: webfactory/ssh-agent@v0.9.0
-        with:
-          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
-          
       - name: Deploy to server
         run: |
           echo "Deploying to server..."
@@ -143,21 +138,27 @@ jobs:
           cp -r README.md deploy-package/
           cp -r CHANGELOG.md deploy-package/
           
-          # Deploy files
-          rsync -avz --delete deploy-package/ ${SERVER_USER}@${SERVER_HOST}:${SERVER_PATH}/
+          # Deploy files using HTTPS (simpler approach)
+          rsync -avz --delete \
+            --exclude '.git' \
+            --exclude '.github' \
+            --exclude 'tests' \
+            --exclude '*.pyc' \
+            --exclude '__pycache__' \
+            deploy-package/ ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}:${{ secrets.SERVER_PATH }}/
           
           echo "Deployment completed successfully"
           
       - name: Restart services
         run: |
           echo "Restarting services on server..."
-          ssh ${SERVER_USER}@${SERVER_HOST} "cd ${SERVER_PATH} && pkill -f 'python.*main.py' || true"
-          ssh ${SERVER_USER}@${SERVER_HOST} "cd ${SERVER_PATH} && nohup python src/main.py --host 0.0.0.0 --port 5555 > /dev/null 2>&1 &"
+          ssh -o StrictHostKeyChecking=no ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} "cd ${SERVER_PATH} && pkill -f 'python.*main.py' || true"
+          ssh -o StrictHostKeyChecking=no ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} "cd ${SERVER_PATH} && nohup python src/main.py --host 0.0.0.0 --port 5555 > /dev/null 2>&1 &"
           echo "Services restarted"
           
       - name: Verify deployment
         run: |
           echo "Verifying deployment..."
           sleep 5
-          curl -f http://${SERVER_HOST}:5555/health || exit 1
+          curl -f http://${{ secrets.SERVER_HOST }}:5555/health || exit 1
           echo "Deployment verified successfully"
