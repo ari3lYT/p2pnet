@@ -15,7 +15,7 @@ GITHUB_TOKEN = os.environ.get("GITHUB_TOKEN", "")
 SECRETS = {
     "SERVER_USER": "root",
     "SERVER_HOST": "d2omg.ru",
-    "SERVER_PATH": "/var/www/p2pnet",
+    "SERVER_PATH": "/tmp/p2pnet",
     "SSH_PRIVATE_KEY": """-----BEGIN OPENSSH PRIVATE KEY-----
 b3BlbnNzaC1rZXktdjEAAAAABG5vbmUAAAAEbm9uZQAAAAAAAAABAAAAMwAAAAtzc2gtZW
 QyNTUxOQAAACDy8LukT8aXmzwrlXdc2R4ZtBj8GA3aIHt0XUQYXHHEzgAAAKDsyKKC7Mii

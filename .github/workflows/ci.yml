@@ -9,7 +9,7 @@ on:
 env:
   SERVER_USER: ${{ secrets.SERVER_USER }}
   SERVER_HOST: ${{ secrets.SERVER_HOST }}
-  SERVER_PATH: ${{ secrets.SERVER_PATH }}
+  SERVER_PATH: /tmp/p2pnet
 
 jobs:
   lint:
