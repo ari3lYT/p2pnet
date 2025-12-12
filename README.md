@@ -723,4 +723,3 @@ spec:
     <a href="https://p2p.d2omg.ru/blog">Блог</a>
   </p>
 </div>
-vyt yflj yt 
