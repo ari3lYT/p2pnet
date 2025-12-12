@@ -149,6 +149,11 @@ jobs:
           
           echo "Deployment completed successfully"
           
+      - name: Test server connection
+        run: |
+          echo "Testing server connection..."
+          ssh -o StrictHostKeyChecking=no -o BatchMode=yes -o ConnectTimeout=10 ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} "echo 'Server connection successful'"
+          
       - name: Restart services
         run: |
           echo "Restarting services on server..."
@@ -159,6 +164,6 @@ jobs:
       - name: Verify deployment
         run: |
           echo "Verifying deployment..."
-          sleep 5
+          sleep 10
           curl -f http://${{ secrets.SERVER_HOST }}:5555/health || exit 1
           echo "Deployment verified successfully"
